@@ -4,9 +4,9 @@
 <h3><b>이재건을 소개합니다.</b></h3>
 <h4><b>Created: Jaegeon. Lee.</b></h4>
 
-🔗 [전지훈련 바로가기](https://keen-mochi-fef8ff.netlify.app/)
+🔗 [이재건 보러가기](https://official-gunblog.web.app/)
 
-<img width="800" height="533" alt="전지훈련 공식 배경" src="/public/og-image.png" />
+<img width="800" height="533" alt="건포트폴리오 공식 배경" src="/public/JG.png" />
 
 </div>
 
@@ -21,11 +21,7 @@
 
 ## <span id="1">🚩 프로젝트 소개</span>
 
-**FC 능곡 갤러리**는 구성원들의 단합을 도모하고,  
-꾸준히 소통할 수 있도록 돕는 **공식 커뮤니티**입니다!
-
-간단한 전지훈련 일정 소개와 추억의 갤러리로  
-구성원들의 일상을 관찰해보세요!
+저에 대해 소개합니다!
 
 <br>
 <!-- Top Button -->
@@ -41,13 +37,13 @@
 
 ### Config
 
-![NPM](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+![pnpm](https://img.shields.io/badge/pnpm-F69220.svg?style=for-the-badge&logo=pnpm&logoColor=white)
 
 ### Development
 
 ![react](https://img.shields.io/badge/react-61DAFB.svg?style=for-the-badge&logo=react&logoColor=white) ![TypeScript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![tailwindcss](https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-![supabase](https://img.shields.io/badge/supabase-3FCF8E.svg?style=for-the-badge&logo=supabase&logoColor=white) ![tanstack](https://img.shields.io/badge/tanstack-FF4154.svg?style=for-the-badge&logo=tanstack&logoColor=white)
+![firebase](https://img.shields.io/badge/firebase-FFCA28.svg?style=for-the-badge&logo=firebase&logoColor=black) ![tanstack](https://img.shields.io/badge/tanstack-FF4154.svg?style=for-the-badge&logo=tanstack&logoColor=white)
 
 ### Design
 
@@ -55,7 +51,7 @@
 
 ### Hosting
 
-![netlify](https://img.shields.io/badge/netlify-00C7B7.svg?style=for-the-badge&logo=netlify&logoColor=white)
+![firebase hosting](https://img.shields.io/badge/firebase_hosting-FFCA28.svg?style=for-the-badge&logo=firebase&logoColor=black)
 
 <br>
 <!-- Top Button -->
