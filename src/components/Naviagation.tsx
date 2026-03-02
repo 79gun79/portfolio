@@ -125,7 +125,7 @@ export function Navigation() {
               }`}
             >
               <img
-                src="/favicon.svg"
+                src="/icon/logo_full_transparent.png"
                 alt="Logo"
                 className="h-6 w-6 sm:h-12 sm:w-12"
               />
