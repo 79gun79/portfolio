@@ -1,7 +1,9 @@
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import { Skeleton } from './ui/Skeleton';
+import { Spinner } from './ui/Spinner';
 import {
   Code,
   Mail,
@@ -54,6 +56,52 @@ const profileItems: ProfileItem[] = [
 export function About() {
   const [isPaperPreviewOpen, setIsPaperPreviewOpen] = useState(false);
   const [isBojBadgePreviewOpen, setIsBojBadgePreviewOpen] = useState(false);
+  const [bojBadgeStatus, setBojBadgeStatus] = useState<
+    'idle' | 'loading' | 'loaded' | 'error'
+  >('idle');
+  const [bojBadgeReloadKey, setBojBadgeReloadKey] = useState(0);
+  const [paperStatus, setPaperStatus] = useState<
+    'idle' | 'loading' | 'loaded' | 'error'
+  >('idle');
+  const [paperLoadedCount, setPaperLoadedCount] = useState(0);
+  const [paperReloadKey, setPaperReloadKey] = useState(0);
+
+  useEffect(() => {
+    if (!isBojBadgePreviewOpen || bojBadgeStatus !== 'loading') return;
+    const timeoutId = window.setTimeout(() => {
+      setBojBadgeStatus((status) => (status === 'loading' ? 'error' : status));
+    }, 10000);
+    return () => window.clearTimeout(timeoutId);
+  }, [isBojBadgePreviewOpen, bojBadgeStatus, bojBadgeReloadKey]);
+
+  useEffect(() => {
+    if (!isPaperPreviewOpen || paperStatus !== 'loading') return;
+    const timeoutId = window.setTimeout(() => {
+      setPaperStatus((status) => (status === 'loading' ? 'error' : status));
+    }, 10000);
+    return () => window.clearTimeout(timeoutId);
+  }, [isPaperPreviewOpen, paperStatus, paperReloadKey]);
+
+  const openBojBadgePreview = () => {
+    setBojBadgeStatus('loading');
+    setBojBadgeReloadKey((k) => k + 1);
+    setIsBojBadgePreviewOpen(true);
+  };
+
+  const closeBojBadgePreview = () => {
+    setIsBojBadgePreviewOpen(false);
+  };
+
+  const openPaperPreview = () => {
+    setPaperStatus('loading');
+    setPaperLoadedCount(0);
+    setPaperReloadKey((k) => k + 1);
+    setIsPaperPreviewOpen(true);
+  };
+
+  const closePaperPreview = () => {
+    setIsPaperPreviewOpen(false);
+  };
 
   const historyItems: HistoryItem[] = [
     {
@@ -65,7 +113,7 @@ export function About() {
           교내 알고리즘 스터디를 통해, 코딩테스트 실력 향상 →{' '}
           <button
             type="button"
-            onClick={() => setIsBojBadgePreviewOpen(true)}
+            onClick={openBojBadgePreview}
             className="cursor-pointer font-bold text-emerald-600 underline decoration-emerald-300 underline-offset-4 hover:text-emerald-700 hover:decoration-emerald-600"
           >
             백준 Tier Gold 1
@@ -75,7 +123,7 @@ export function About() {
           2023 한국디지털콘텐츠학회 하계종합학술제 <b>동상</b> 수상 (
           <button
             type="button"
-            onClick={() => setIsPaperPreviewOpen(true)}
+            onClick={openPaperPreview}
             className="ml-1 cursor-pointer font-bold text-emerald-600 underline decoration-emerald-300 underline-offset-4 hover:text-emerald-700 hover:decoration-emerald-600"
           >
             논문보기
@@ -196,7 +244,7 @@ export function About() {
           role="dialog"
           aria-modal="true"
           aria-label="백준 배지 미리보기"
-          onClick={() => setIsBojBadgePreviewOpen(false)}
+          onClick={closeBojBadgePreview}
         >
           <div
             className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white p-4 shadow-xl sm:p-6"
@@ -207,19 +255,62 @@ export function About() {
               <button
                 type="button"
                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-900"
-                onClick={() => setIsBojBadgePreviewOpen(false)}
+                onClick={closeBojBadgePreview}
               >
                 닫기
               </button>
             </div>
 
             <div className="flex justify-center">
-              <img
-                src="https://mazassumnida.wtf/api/v2/generate_badge?boj=79gun79"
-                alt="Baekjoon badge for 79gun79"
-                className="max-w-full"
-                loading="lazy"
-              />
+              <div className="w-full">
+                {bojBadgeStatus === 'loading' ? (
+                  <div className="flex flex-col items-center justify-center gap-4 py-14">
+                    <Spinner size="lg" thickness="thick" label="배지 로딩" />
+                    <div className="w-full max-w-lg space-y-3">
+                      <Skeleton className="h-6 w-44" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-11/12" />
+                      <Skeleton className="h-64 w-full rounded-xl" />
+                    </div>
+                    <div className="text-sm text-slate-500">
+                      배지를 불러오는 중입니다...
+                    </div>
+                  </div>
+                ) : null}
+
+                {bojBadgeStatus === 'error' ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-14 text-center">
+                    <div className="text-base font-semibold text-slate-900">
+                      배지를 불러오지 못했습니다.
+                    </div>
+                    <div className="text-sm text-slate-600">
+                      네트워크 상태를 확인한 뒤 다시 시도해주세요.
+                    </div>
+                    <button
+                      type="button"
+                      className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-900"
+                      onClick={() => {
+                        setBojBadgeStatus('loading');
+                        setBojBadgeReloadKey((k) => k + 1);
+                      }}
+                    >
+                      다시 시도
+                    </button>
+                  </div>
+                ) : null}
+
+                <img
+                  key={bojBadgeReloadKey}
+                  src="https://mazassumnida.wtf/api/v2/generate_badge?boj=79gun79"
+                  alt="Baekjoon badge for 79gun79"
+                  className={`mx-auto block max-w-full transition-opacity duration-200 ${
+                    bojBadgeStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  loading="eager"
+                  onLoad={() => setBojBadgeStatus('loaded')}
+                  onError={() => setBojBadgeStatus('error')}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -231,7 +322,7 @@ export function About() {
           role="dialog"
           aria-modal="true"
           aria-label="학회 논문 미리보기"
-          onClick={() => setIsPaperPreviewOpen(false)}
+          onClick={closePaperPreview}
         >
           <div
             className="max-h-[90vh] w-full max-w-4xl overflow-auto rounded-2xl bg-white p-4 shadow-xl sm:p-6"
@@ -244,24 +335,83 @@ export function About() {
               <button
                 type="button"
                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-900"
-                onClick={() => setIsPaperPreviewOpen(false)}
+                onClick={closePaperPreview}
               >
                 닫기
               </button>
             </div>
 
             <div className="space-y-6">
+              {paperStatus === 'loading' ? (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 text-sm text-slate-500">
+                    <Spinner
+                      size="sm"
+                      thickness="thin"
+                      label="논문 미리보기 로딩"
+                    />
+                    미리보기를 불러오는 중입니다... ({paperLoadedCount}/2)
+                  </div>
+                  <Skeleton className="h-105 w-full rounded-xl border border-slate-200" />
+                  <Skeleton className="h-105 w-full rounded-xl border border-slate-200" />
+                </div>
+              ) : null}
+
+              {paperStatus === 'error' ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-14 text-center">
+                  <div className="text-base font-semibold text-slate-900">
+                    미리보기를 불러오지 못했습니다.
+                  </div>
+                  <div className="text-sm text-slate-600">
+                    이미지 경로(`/public`)를 확인한 뒤 다시 시도해주세요.
+                  </div>
+                  <button
+                    type="button"
+                    className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-900"
+                    onClick={() => {
+                      setPaperStatus('loading');
+                      setPaperLoadedCount(0);
+                      setPaperReloadKey((k) => k + 1);
+                    }}
+                  >
+                    다시 시도
+                  </button>
+                </div>
+              ) : null}
+
               <img
+                key={`paper-${paperReloadKey}-1`}
                 src="/paper_page_1.png"
                 alt="학회논문 1페이지"
-                className="w-full rounded-xl border border-slate-200"
-                loading="lazy"
+                className={`w-full rounded-xl border border-slate-200 transition-opacity duration-200 ${
+                  paperStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
+                }`}
+                loading="eager"
+                onLoad={() => {
+                  setPaperLoadedCount((count) => {
+                    const next = count + 1;
+                    if (next >= 2) setPaperStatus('loaded');
+                    return next;
+                  });
+                }}
+                onError={() => setPaperStatus('error')}
               />
               <img
+                key={`paper-${paperReloadKey}-2`}
                 src="/paper_page_2.png"
                 alt="학회논문 2페이지"
-                className="w-full rounded-xl border border-slate-200"
-                loading="lazy"
+                className={`w-full rounded-xl border border-slate-200 transition-opacity duration-200 ${
+                  paperStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
+                }`}
+                loading="eager"
+                onLoad={() => {
+                  setPaperLoadedCount((count) => {
+                    const next = count + 1;
+                    if (next >= 2) setPaperStatus('loaded');
+                    return next;
+                  });
+                }}
+                onError={() => setPaperStatus('error')}
               />
             </div>
           </div>
