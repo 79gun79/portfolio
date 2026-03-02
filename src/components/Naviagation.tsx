@@ -340,14 +340,6 @@ export function Navigation() {
                       </button>
                     </div>
                   )}
-
-                  <a
-                    href="#openpositions"
-                    onClick={(e) => handleNavClick(e, '#openpositions')}
-                    className="block w-full rounded-xl bg-slate-100 px-6 py-4 text-center font-medium text-slate-900 transition-colors hover:bg-slate-200 active:scale-[0.98]"
-                  >
-                    다시 보기
-                  </a>
                 </div>
 
                 {/* Footer Info */}

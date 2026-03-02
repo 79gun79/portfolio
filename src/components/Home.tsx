@@ -94,7 +94,9 @@ export function Home() {
             className="flex max-w-2xl flex-col gap-4 sm:flex-row"
           >
             <a
-              href="#contact"
+              href="https://github.com/79gun79"
+              target="_blank"
+              rel="noreferrer noopener"
               className={twMerge(
                 'group inline-flex items-center justify-center gap-2 rounded-xl bg-green-900 px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-green-800',
               )}
@@ -103,12 +105,14 @@ export function Home() {
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </a>
             <a
-              href="#vision"
+              href="https://79gun79.github.io/"
+              target="_blank"
+              rel="noreferrer noopener"
               className={twMerge(
                 'inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-8 py-4 text-lg font-semibold text-slate-900 transition-all hover:border-slate-900',
               )}
             >
-              더 알아보기
+              기술 블로그
             </a>
           </motion.div>
         </motion.div>
