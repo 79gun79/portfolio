@@ -7,8 +7,9 @@ import { Navigation } from './components/Naviagation';
 import { Posts } from './components/Posts';
 import { Start } from './components/Start';
 import Skills from './components/Skills';
+import Experience from './components/Experience';
 
-const INTRO_DURATION_MS = 1800;
+const INTRO_DURATION_MS = 2400;
 
 export default function App() {
   const [showStart, setShowStart] = useState(true);
@@ -37,6 +38,7 @@ export default function App() {
               <Home />
               <About />
               <Skills />
+              <Experience />
               <Posts />
             </div>
           }

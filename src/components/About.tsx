@@ -266,12 +266,7 @@ export function About() {
                 {bojBadgeStatus === 'loading' ? (
                   <div className="flex flex-col items-center justify-center gap-4 py-14">
                     <Spinner size="lg" thickness="thick" label="배지 로딩" />
-                    <div className="w-full max-w-lg space-y-3">
-                      <Skeleton className="h-6 w-44" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-11/12" />
-                      <Skeleton className="h-64 w-full rounded-xl" />
-                    </div>
+                    <Skeleton className="h-42.5 w-87.5 max-w-full rounded-xl" />
                     <div className="text-sm text-slate-500">
                       배지를 불러오는 중입니다...
                     </div>
@@ -431,7 +426,7 @@ export function About() {
             About Me
           </div>
           <h2 className="mb-6 text-3xl text-slate-900 sm:mb-8 sm:text-5xl lg:text-6xl">
-            반갑습니다! 저는..
+            반갑습니다! 저는...
           </h2>
         </motion.div>
 
