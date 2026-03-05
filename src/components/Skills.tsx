@@ -1,16 +1,28 @@
 import { useId, useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Code, Palette, Database, Wrench, BadgeCheck } from 'lucide-react';
+import {
+  Code,
+  Palette,
+  Database,
+  Wrench,
+  BadgeCheck,
+  Layers,
+  Store,
+} from 'lucide-react';
 import {
   siGit,
   siGithub,
+  siFirebase,
   siJavascript,
   siNextdotjs,
   siNotion,
+  siPython,
   siReact,
   siStorybook,
   siSupabase,
   siTailwindcss,
+  siTypescript,
+  siVuedotjs,
 } from 'simple-icons/icons';
 
 type BrandIcon = {
@@ -171,8 +183,8 @@ export default function Skills() {
   const groups: SkillGroup[] = useMemo(
     () => [
       {
-        title: 'Frontend Core',
-        icon: Code,
+        title: 'Framework & State',
+        icon: Layers,
         items: [
           {
             id: 'next-react',
@@ -184,6 +196,30 @@ export default function Skills() {
             tone: 'emerald',
           },
           {
+            id: 'vue',
+            title: 'Vue',
+            keyword: 'SFC · 반응성 · 컴포넌트 설계',
+            description:
+              '단일 파일 컴포넌트(SFC) 기반으로 화면을 구조화하고, 반응성 시스템을 이해한 상태 관리/렌더링 최적화에 집중합니다. Composition API를 중심으로 재사용 가능한 UI 로직을 모듈화하고, 컴포넌트 경계를 명확히 나눠 유지보수하기 쉬운 구조를 지향합니다.',
+            logos: [siVuedotjs],
+            tone: 'emerald',
+          },
+          {
+            id: 'zustand',
+            title: 'Zustand',
+            keyword: '전역 상태 · Store 설계 · 간결한 API',
+            description:
+              '불필요한 보일러플레이트를 줄이면서도 예측 가능한 전역 상태를 구성합니다. selector 기반 구독으로 리렌더링 범위를 제어하고, derived state/비동기 액션/영속화(persist) 등을 활용해 화면 규모가 커져도 흐름이 무너지지 않도록 스토어를 설계합니다.',
+            icon: Store,
+            tone: 'indigo',
+          },
+        ],
+      },
+      {
+        title: 'Languages',
+        icon: Code,
+        items: [
+          {
             id: 'javascript',
             title: 'JavaScript',
             keyword: 'Core 이해 · 알고리즘 · 비즈니스 로직',
@@ -191,6 +227,24 @@ export default function Skills() {
               '꾸준한 알고리즘 문제 해결을 통해 언어의 코어 동작 원리를 깊이 이해하고, 복잡한 프론트엔드 비즈니스 로직을 탄탄하게 구현합니다.',
             logos: [siJavascript],
             tone: 'amber',
+          },
+          {
+            id: 'typescript',
+            title: 'TypeScript',
+            keyword: '타입 설계 · 안정성 · 리팩토링',
+            description:
+              '명확한 타입 모델링으로 런타임 오류를 사전에 줄이고, 컴포넌트/도메인/API 경계를 타입으로 고정해 유지보수성을 높입니다. 제네릭·유틸리티 타입·타입가드(좁히기)를 활용해 복잡한 상태와 데이터 흐름도 예측 가능하게 구현합니다.',
+            logos: [siTypescript],
+            tone: 'indigo',
+          },
+          {
+            id: 'python',
+            title: 'Python',
+            keyword: '자동화 · 데이터 처리 · 문제 해결',
+            description:
+              '간단한 자동화 스크립트부터 데이터 전처리/분석, 알고리즘 문제 해결까지 폭넓게 활용합니다. 읽기 쉬운 코드와 함수 단위의 모듈화를 중시하고, 필요한 경우 외부 API 연동으로 반복 작업을 줄이는 방식으로 생산성을 높입니다.',
+            logos: [siPython],
+            tone: 'slate',
           },
         ],
       },
@@ -230,6 +284,15 @@ export default function Skills() {
               '사용자 인증(Auth)부터 실시간 데이터베이스 연동, 커뮤니티 게시판 기능까지 빠르게 구축하여, 프론트엔드 비즈니스 로직 개발에 집중하면서도 완성도 높은 풀스택 서비스를 구현합니다.',
             logos: [siSupabase],
             tone: 'slate',
+          },
+          {
+            id: 'firebase',
+            title: 'Firebase',
+            keyword: 'Auth · Firestore · Hosting/Storage',
+            description:
+              'Firebase Auth로 로그인/세션 흐름을 빠르게 구성하고, Firestore를 활용해 읽기·쓰기 패턴과 쿼리를 고려한 데이터 모델링을 진행합니다. Hosting/Storage를 통해 배포와 파일 업로드를 간단히 연결하며, Security Rules로 접근 제어를 설정해 클라이언트 중심 구조에서도 보안을 놓치지 않도록 설계합니다.',
+            logos: [siFirebase],
+            tone: 'amber',
           },
         ],
       },

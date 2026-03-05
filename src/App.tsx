@@ -9,7 +9,7 @@ import { Start } from './components/Start';
 import Skills from './components/Skills';
 import Experience from './components/Experience';
 
-const INTRO_DURATION_MS = 2400;
+const INTRO_DURATION_MS = 3000;
 
 export default function App() {
   const [showStart, setShowStart] = useState(true);

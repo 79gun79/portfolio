@@ -106,8 +106,8 @@ export function Navigation() {
       <nav
         className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'border-b border-slate-200 bg-white/98 shadow-sm backdrop-blur-xl'
-            : 'border-b border-slate-200/50 bg-white/95 backdrop-blur-xl'
+            ? 'border-b border-slate-200/70 bg-white/92 shadow-sm backdrop-blur-xl'
+            : 'border-b border-white/25 bg-white/80 shadow-sm shadow-black/10 backdrop-blur-xl'
         }`}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
@@ -120,16 +120,14 @@ export function Navigation() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 setIsMobileMenuOpen(false);
               }}
-              className={`group flex items-center gap-2 transition-colors sm:gap-3 ${
-                isScrolled ? 'text-slate-900' : 'text-white'
-              }`}
+              className="group flex items-center gap-2 text-slate-900 transition-colors sm:gap-3"
             >
               <img
                 src="/icon/logo_full_transparent.png"
                 alt="Logo"
                 className="h-6 w-6 sm:h-12 sm:w-12"
               />
-              <span className="font-mono text-lg font-semibold text-slate-900 transition-colors group-hover:text-green-600 sm:text-xl lg:text-2xl">
+              <span className="font-mono text-lg font-semibold text-slate-900 transition-colors group-hover:text-emerald-700 sm:text-xl lg:text-2xl">
                 Jaegeon. Lee.
               </span>
             </a>
@@ -141,7 +139,7 @@ export function Navigation() {
                   key={item.href}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href)}
-                  className={`rounded-lg px-4 py-2 text-base font-medium text-slate-700 transition-all hover:bg-green-50 hover:text-green-600`}
+                  className="rounded-lg px-4 py-2 text-base font-medium text-slate-700 transition-all hover:bg-emerald-50/80 hover:text-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:outline-none"
                 >
                   {item.label}
                 </a>
@@ -154,8 +152,8 @@ export function Navigation() {
                   className={twMerge(
                     'ml-4 cursor-pointer rounded-lg px-6 py-2.5 font-semibold transition-all',
                     isScrolled
-                      ? 'bg-green-600 text-white shadow-lg shadow-green-600/25 hover:bg-green-700'
-                      : 'border border-white/20 bg-white text-slate-900 hover:bg-green-50',
+                      ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800'
+                      : 'border border-slate-200 bg-white/80 text-slate-900 hover:bg-slate-50',
                   )}
                 >
                   로그인
@@ -164,7 +162,7 @@ export function Navigation() {
                 <div className="relative ml-4" ref={profileMenuRef}>
                   <button
                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-green-600 hover:ring-offset-2"
+                    className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-emerald-400/60 hover:ring-offset-2"
                     aria-label="프로필 메뉴"
                   >
                     <img
@@ -222,11 +220,7 @@ export function Navigation() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-all lg:hidden ${
-                isScrolled
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-white text-slate-900 hover:bg-green-50'
-              }`}
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white/80 text-slate-900 shadow-sm transition-all hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:outline-none lg:hidden"
               aria-label="Menu"
             >
               {isMobileMenuOpen ? (
@@ -264,7 +258,7 @@ export function Navigation() {
               {/* Menu Header */}
               <div className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-6">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600 shadow-md shadow-green-600/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 shadow-md shadow-slate-900/15">
                     <SquareTerminal className="h-6 w-6 text-white" />
                   </div>
                   <span className="font-mono text-xl font-semibold text-slate-900">
@@ -290,10 +284,10 @@ export function Navigation() {
                       onClick={(e) => handleNavClick(e, item.href)}
                       className="group flex items-center justify-between rounded-xl px-4 py-4 transition-colors hover:bg-slate-50 active:scale-[0.98]"
                     >
-                      <span className="text-lg font-medium text-slate-900 transition-colors group-hover:text-green-600">
+                      <span className="text-lg font-medium text-slate-900 transition-colors group-hover:text-emerald-700">
                         {item.label}
                       </span>
-                      <ChevronRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-0.5 group-hover:text-green-600" />
+                      <ChevronRight className="h-5 w-5 text-slate-400 transition-all group-hover:translate-x-0.5 group-hover:text-emerald-700" />
                     </a>
                   ))}
                 </nav>
@@ -307,7 +301,7 @@ export function Navigation() {
                       type="button"
                       className={twMerge(
                         'block w-full cursor-pointer rounded-xl px-6 py-4 text-center font-semibold shadow-lg transition-colors active:scale-[0.98]',
-                        'bg-green-600 text-white shadow-green-600/25 hover:bg-green-700',
+                        'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
                       )}
                     >
                       로그인
