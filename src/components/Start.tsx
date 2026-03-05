@@ -41,7 +41,7 @@ export function Start({ onFinish, durationMs = 1600 }: StartProps) {
     <motion.div
       role="dialog"
       aria-label="Start animation"
-      className="fixed inset-0 z-100 flex items-center justify-center overflow-hidden bg-white"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-white"
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

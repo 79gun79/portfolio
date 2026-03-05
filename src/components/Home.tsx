@@ -45,7 +45,11 @@ export function Home() {
       const rect = aboutElement.getBoundingClientRect();
       const vh = window.innerHeight || 1;
       const raw = (vh - rect.top) / vh;
-      aboutRawProgress.set(raw);
+
+      // If we're at the top of the page, never start in the "About is filling" state.
+      // This avoids a stuck blank hero when browsers restore scroll late or layout shifts.
+      const isAtTop = (window.scrollY || 0) < 2;
+      aboutRawProgress.set(isAtTop ? Math.min(raw, 0) : raw);
     };
 
     const scheduleUpdate = () => {
@@ -54,11 +58,15 @@ export function Home() {
     };
 
     scheduleUpdate();
+    // In case another effect adjusts scroll position on mount (e.g. scroll restoration handling),
+    // re-check once after the current call stack.
+    const timeoutId = window.setTimeout(scheduleUpdate, 0);
     window.addEventListener('scroll', scheduleUpdate, { passive: true });
     window.addEventListener('resize', scheduleUpdate);
 
     return () => {
       if (rafId) window.cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
       window.removeEventListener('scroll', scheduleUpdate);
       window.removeEventListener('resize', scheduleUpdate);
     };
