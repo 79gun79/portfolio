@@ -9,6 +9,14 @@ export function Home() {
   const { loading } = useAuth();
   const containerRef = useRef(null);
 
+  const [floatEnabled, setFloatEnabled] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    return !reduceMotion && (window.scrollY || 0) < 8;
+  });
+
   const [viewportHeight, setViewportHeight] = useState(() =>
     typeof window === 'undefined' ? 800 : window.innerHeight,
   );
@@ -72,6 +80,25 @@ export function Home() {
     };
   }, [aboutRawProgress]);
 
+  useEffect(() => {
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    const compute = () => {
+      // Only float at the very top to suggest "scroll up / reveal".
+      setFloatEnabled((window.scrollY || 0) < 8);
+    };
+
+    const rafId = window.requestAnimationFrame(compute);
+    window.addEventListener('scroll', compute, { passive: true });
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', compute);
+    };
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end start'],
@@ -113,6 +140,7 @@ export function Home() {
 
   return (
     <section
+      id="home"
       ref={containerRef}
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950"
     >
@@ -230,11 +258,40 @@ export function Home() {
       {/* Bottom Waiting Card → fills into About on scroll */}
       <motion.div
         aria-hidden="true"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-9"
+        style={{
+          opacity: 1,
+          paddingLeft: cardGutter,
+          paddingRight: cardGutter,
+        }}
+      >
+        <motion.div className="mx-auto" style={{ maxWidth: cardMaxWidth }}>
+          <motion.div
+            className="bg-white"
+            style={{
+              height: 'max(env(safe-area-inset-bottom), 60px)',
+              borderTopLeftRadius: cardRadius,
+              borderTopRightRadius: cardRadius,
+            }}
+          />
+        </motion.div>
+      </motion.div>
+      <motion.div
+        aria-hidden="true"
         className="pointer-events-none fixed inset-x-0 bottom-0 z-10"
+        animate={floatEnabled ? { y: [-6, -18, -6] } : { y: 0 }}
+        transition={
+          floatEnabled
+            ? { duration: 2.8, repeat: Infinity, ease: 'easeInOut' }
+            : { duration: 0.2 }
+        }
         style={{
           opacity: cardOpacity,
           paddingLeft: cardGutter,
           paddingRight: cardGutter,
+          paddingBottom: floatEnabled
+            ? 'max(env(safe-area-inset-bottom), 14px)'
+            : 'env(safe-area-inset-bottom, 0px)',
         }}
       >
         <motion.div className="mx-auto" style={{ maxWidth: cardMaxWidth }}>
@@ -244,7 +301,7 @@ export function Home() {
               height: cardHeight,
               borderTopLeftRadius: cardRadius,
               borderTopRightRadius: cardRadius,
-              boxShadow: cardShadow,
+              boxShadow: floatEnabled ? '0 0px 0px rgba(0,0,0,0)' : cardShadow,
             }}
           />
         </motion.div>

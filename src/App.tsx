@@ -9,22 +9,22 @@ import { Start } from './components/Start';
 import Skills from './components/Skills';
 import Experience from './components/Experience';
 
-const INTRO_DURATION_MS = 3000;
+const INTRO_DURATION_MS = 2000;
 
 export default function App() {
   const [showStart, setShowStart] = useState(true);
+
+  const forceTop = useCallback(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
 
   useLayoutEffect(() => {
     // Prevent the browser from restoring a previous scroll position on reload.
     // Some browsers restore scroll after paint; force top over a few ticks.
     if ('scrollRestoration' in window.history)
       window.history.scrollRestoration = 'manual';
-
-    const forceTop = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
 
     forceTop();
     const raf1 = window.requestAnimationFrame(forceTop);
@@ -47,12 +47,16 @@ export default function App() {
       window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('load', onLoad);
     };
-  }, []);
+  }, [forceTop]);
 
   const handleFinishStart = useCallback(() => {
     setShowStart(false);
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  }, []);
+    forceTop();
+    // Some browsers apply scroll restoration late; re-force over a few ticks.
+    window.requestAnimationFrame(forceTop);
+    window.setTimeout(forceTop, 0);
+    window.setTimeout(forceTop, 120);
+  }, [forceTop]);
 
   return (
     <BrowserRouter>

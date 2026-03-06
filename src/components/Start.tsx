@@ -13,11 +13,6 @@ function prefersReducedMotion(): boolean {
 
 export function Start({ onFinish, durationMs = 1600 }: StartProps) {
   useEffect(() => {
-    if (prefersReducedMotion()) {
-      onFinish();
-      return;
-    }
-
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -37,11 +32,13 @@ export function Start({ onFinish, durationMs = 1600 }: StartProps) {
     };
   }, [durationMs, onFinish]);
 
+  const reduceMotion = prefersReducedMotion();
+
   return (
     <motion.div
       role="dialog"
       aria-label="Start animation"
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-white"
+      className="fixed inset-0 z-100 flex items-center justify-center overflow-hidden bg-white"
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -102,7 +99,11 @@ export function Start({ onFinish, durationMs = 1600 }: StartProps) {
             className="h-full w-full origin-left bg-green-700"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ duration: durationMs / 1000, ease: 'linear' }}
+            transition={
+              reduceMotion
+                ? { duration: 0, ease: 'linear' }
+                : { duration: durationMs / 1000, ease: 'linear' }
+            }
           />
         </div>
       </div>

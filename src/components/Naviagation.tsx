@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, ChevronRight, SquareTerminal, LogOut } from 'lucide-react';
+import { Menu, X, ChevronRight, LogOut } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../hooks/useAuth';
 import { loginWithGooglePopup, logout } from '../services/auth';
@@ -9,6 +9,7 @@ export function Navigation() {
   const { user } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isInHome, setIsInHome] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -35,11 +36,30 @@ export function Navigation() {
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+    const compute = () => {
+      const y = window.scrollY || 0;
+      setIsScrolled(y > 20);
+
+      // "Home" 구간: About 섹션(#about) 도달 전까지로 간주
+      const aboutEl = document.getElementById('about');
+      if (aboutEl) {
+        const aboutTop = aboutEl.getBoundingClientRect().top + y;
+        const navOffset = 120;
+        setIsInHome(y < aboutTop - navOffset);
+        return;
+      }
+
+      // Fallback: About이 아직 렌더되지 않은 경우 대략 첫 화면을 Home으로 취급
+      setIsInHome(y < (window.innerHeight || 0) * 0.9);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    compute();
+    window.addEventListener('scroll', compute, { passive: true });
+    window.addEventListener('resize', compute);
+    return () => {
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', compute);
+    };
   }, []);
 
   // Lock body scroll when mobile menu is open
@@ -104,11 +124,18 @@ export function Navigation() {
   return (
     <>
       <nav
-        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'border-b border-slate-200/70 bg-white/92 shadow-sm backdrop-blur-xl'
-            : 'border-b border-white/25 bg-white/80 shadow-sm shadow-black/10 backdrop-blur-xl'
-        }`}
+        className={twMerge(
+          'fixed top-0 right-0 left-0 z-50 backdrop-blur-xl transition-all duration-300',
+          isInHome
+            ? [
+                'border-b border-[#D9C37A]/35',
+                'bg-[linear-gradient(180deg,rgba(252,250,245,0.92),rgba(248,242,228,0.86))]',
+                'shadow-[0_10px_30px_rgba(0,0,0,0.18)]',
+              ].join(' ')
+            : isScrolled
+              ? 'border-b border-slate-200/70 bg-white/92 shadow-sm'
+              : 'border-b border-white/25 bg-white/80 shadow-sm shadow-black/10',
+        )}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex h-16 items-center justify-between sm:h-20 lg:h-24">
@@ -120,16 +147,14 @@ export function Navigation() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 setIsMobileMenuOpen(false);
               }}
-              className="group flex items-center gap-2 text-slate-900 transition-colors sm:gap-3"
+              aria-label="Home"
+              className="group flex items-center text-slate-900 transition-colors"
             >
               <img
-                src="/icon/logo_full_transparent.png"
+                src="/icon/logo_none.png"
                 alt="Logo"
-                className="h-6 w-6 sm:h-12 sm:w-12"
+                className="h-6 w-auto object-contain sm:h-12"
               />
-              <span className="font-mono text-lg font-semibold text-slate-900 transition-colors group-hover:text-emerald-700 sm:text-xl lg:text-2xl">
-                Jaegeon. Lee.
-              </span>
             </a>
 
             {/* Desktop Navigation */}
@@ -139,7 +164,24 @@ export function Navigation() {
                   key={item.href}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href)}
-                  className="rounded-lg px-4 py-2 text-base font-medium text-slate-700 transition-all hover:bg-emerald-50/80 hover:text-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:outline-none"
+                  className={twMerge(
+                    'rounded-lg px-4 py-2 text-base font-medium transition-all',
+                    'focus-visible:ring-2 focus-visible:outline-none',
+                    'active:scale-[0.98]',
+                    isInHome
+                      ? [
+                          'text-slate-800!',
+                          'hover:bg-[#F1DEAB]/70 hover:text-[#344032]!',
+                          'active:bg-[#E6C874]/70',
+                          'focus-visible:ring-[#D9C37A]/55',
+                        ].join(' ')
+                      : [
+                          'text-slate-700!',
+                          'hover:bg-emerald-50/80 hover:text-emerald-700!',
+                          'active:bg-emerald-100/80',
+                          'focus-visible:ring-emerald-200',
+                        ].join(' '),
+                  )}
                 >
                   {item.label}
                 </a>
@@ -257,14 +299,9 @@ export function Navigation() {
             >
               {/* Menu Header */}
               <div className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-6">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 shadow-md shadow-slate-900/15">
-                    <SquareTerminal className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="font-mono text-xl font-semibold text-slate-900">
-                    Jaegeon. Lee.
-                  </span>
-                </div>
+                <span className="pl-2 text-xl font-semibold text-slate-900">
+                  Gun's Portfolio
+                </span>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-slate-100"
