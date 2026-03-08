@@ -144,7 +144,12 @@ export function Home() {
       (viewportHeight - waitingCardStartHeight) * progress,
   );
   const cardRadius = useTransform(cardFillProgress, [0, 1], [24, 0]);
-  const cardGutter = useTransform(cardFillProgress, [0, 1], [baseGutterPx, 0]);
+  const cardGutterStartPx = isMobile ? 0 : baseGutterPx;
+  const cardGutter = useTransform(
+    cardFillProgress,
+    [0, 1],
+    [cardGutterStartPx, 0],
+  );
   const cardMaxWidth = useTransform(cardFillProgress, [0, 1], [1536, 10000]);
   const cardOpacity = useTransform(aboutRawProgress, (value) => {
     if (value <= 0.95) return 1;
@@ -157,7 +162,6 @@ export function Home() {
     ['0 30px 80px rgba(0,0,0,0.28)', '0 0px 0px rgba(0,0,0,0)'],
   );
 
-  const parallaxOverlayY = useTransform(aboutProgress, [0.35, 1], [0, -50]);
   const parallaxPatternY = useTransform(aboutProgress, [0.35, 1], [0, -35]);
   const sinkY = useTransform(aboutProgress, [0.35, 1], [0, 160]);
   const sinkScale = useTransform(aboutProgress, [0.35, 1], [1, 0.88]);
@@ -172,19 +176,12 @@ export function Home() {
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#071f0c] bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage:
-          'radial-gradient(900px circle at 25% 18%, rgba(180, 255, 170, 0.22), transparent 58%), radial-gradient(1100px circle at 78% 38%, rgba(60, 200, 90, 0.30), transparent 62%), radial-gradient(800px circle at 50% 105%, rgba(10, 60, 20, 0.55), transparent 60%), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 7px), linear-gradient(135deg, #071f0c 0%, #0b3d13 30%, #1f7a1f 68%, #8eea6a 100%)',
+          'linear-gradient(180deg, rgba(2, 6, 23, 0.78) 0%, rgba(2, 6, 23, 0.68) 55%, rgba(2, 6, 23, 0.82) 100%), radial-gradient(900px circle at 25% 18%, rgba(180, 255, 170, 0.22), transparent 58%), radial-gradient(1100px circle at 78% 38%, rgba(60, 200, 90, 0.30), transparent 62%), radial-gradient(800px circle at 50% 105%, rgba(10, 60, 20, 0.55), transparent 60%), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 7px), linear-gradient(135deg, #071f0c 0%, #0b3d13 30%, #1f7a1f 68%, #8eea6a 100%)',
       }}
     >
-      {/* Readability Overlay */}
-      <motion.div
-        aria-hidden="true"
-        className="absolute inset-0 z-0 bg-linear-to-b from-slate-950/80 via-slate-950/70 to-slate-950/85"
-        style={{ y: parallaxOverlayY }}
-      />
-
       {/* Subtle Pattern */}
       <motion.div
-        className="absolute inset-0 z-0 opacity-30"
+        className="absolute inset-x-0 -inset-y-28 z-0 opacity-30"
         style={{
           backgroundImage:
             'radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.08) 1px, transparent 0)',

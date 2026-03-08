@@ -236,7 +236,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="relative z-20 px-4 py-20 sm:px-6 sm:py-32 lg:py-48"
+      className="relative z-20 bg-white px-4 py-20 sm:px-6 sm:py-32 lg:py-48"
     >
       {isBojBadgePreviewOpen ? (
         <div
