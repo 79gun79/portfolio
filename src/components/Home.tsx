@@ -8,7 +8,6 @@ import { useAuth } from '../hooks/useAuth';
 export function Home() {
   const { loading } = useAuth();
   const containerRef = useRef(null);
-  const ctaRef = useRef<HTMLDivElement | null>(null);
 
   const [floatEnabled, setFloatEnabled] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -31,10 +30,6 @@ export function Home() {
     return 12;
   });
 
-  const waitingCardStartHeightMv = useMotionValue(72);
-  const waitingCardStartTargetRef = useRef(72);
-  const waitingCardStartRafRef = useRef(0);
-
   const aboutRawProgress = useMotionValue(0);
 
   useEffect(() => {
@@ -50,109 +45,6 @@ export function Home() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const scheduleAnimateStartHeight = () => {
-      if (waitingCardStartRafRef.current) return;
-
-      const tick = () => {
-        waitingCardStartRafRef.current = 0;
-        const target = waitingCardStartTargetRef.current;
-        const current = waitingCardStartHeightMv.get();
-
-        const delta = target - current;
-        if (Math.abs(delta) <= 0.5) {
-          waitingCardStartHeightMv.set(target);
-          return;
-        }
-
-        // Smoothly ease toward the target to avoid jumps during layout reflow
-        // when resizing within mobile widths.
-        const eased = current + delta * 0.22;
-        const maxStep = 16;
-        const stepped =
-          Math.abs(eased - current) > maxStep
-            ? current + Math.sign(delta) * maxStep
-            : eased;
-
-        waitingCardStartHeightMv.set(Math.round(stepped));
-        waitingCardStartRafRef.current = window.requestAnimationFrame(tick);
-      };
-
-      waitingCardStartRafRef.current = window.requestAnimationFrame(tick);
-    };
-
-    const updateStartHeightTarget = () => {
-      const node = ctaRef.current;
-      if (!node) {
-        waitingCardStartTargetRef.current = 72;
-        waitingCardStartHeightMv.set(72);
-        return;
-      }
-
-      // Tablet/desktop: keep fixed values (original behavior).
-      if (window.innerWidth >= 1024) {
-        waitingCardStartTargetRef.current = 56;
-        waitingCardStartHeightMv.set(56);
-        return;
-      }
-
-      if (window.innerWidth >= 640) {
-        waitingCardStartTargetRef.current = 72;
-        waitingCardStartHeightMv.set(72);
-        return;
-      }
-
-      const rect = node.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const floatClearancePx = 18;
-      const baseGapPx = 22;
-      const desiredGapPx = baseGapPx + floatClearancePx;
-      const desiredTopPx = rect.bottom + desiredGapPx;
-      const rawHeight = vh - desiredTopPx;
-
-      const targetHeight = Math.max(
-        72,
-        Math.min(rawHeight, Math.round(vh * 0.85)),
-      );
-
-      const nextTarget = Math.round(targetHeight);
-      waitingCardStartTargetRef.current = nextTarget;
-
-      // If the layout reflows during resizing and the target drops,
-      // clamp immediately so the card never temporarily sits too high
-      // (which looks like it suddenly got bigger / too close to the CTA).
-      const current = waitingCardStartHeightMv.get();
-      if (current > nextTarget) waitingCardStartHeightMv.set(nextTarget);
-
-      scheduleAnimateStartHeight();
-    };
-
-    const rafId = window.requestAnimationFrame(updateStartHeightTarget);
-    const timeoutId = window.setTimeout(updateStartHeightTarget, 0);
-    window.addEventListener('resize', updateStartHeightTarget);
-
-    let resizeObserver: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined' && ctaRef.current) {
-      resizeObserver = new ResizeObserver(() => updateStartHeightTarget());
-      resizeObserver.observe(ctaRef.current);
-    }
-
-    return () => {
-      window.cancelAnimationFrame(rafId);
-      window.clearTimeout(timeoutId);
-      window.removeEventListener('resize', updateStartHeightTarget);
-      resizeObserver?.disconnect();
-      resizeObserver = null;
-
-      if (waitingCardStartRafRef.current) {
-        window.cancelAnimationFrame(waitingCardStartRafRef.current);
-        waitingCardStartRafRef.current = 0;
-      }
-    };
-  }, [waitingCardStartHeightMv]);
 
   useEffect(() => {
     let rafId = 0;
@@ -227,6 +119,8 @@ export function Home() {
   });
 
   const isDesktop = viewportWidth >= 1024;
+  const isMobile = viewportWidth < 640;
+  const waitingCardStartHeight = isDesktop ? 56 : isMobile ? 114 : 72;
   const waitingCardMinBaseHeight = isDesktop ? 36 : 44;
 
   // Fill the viewport a bit earlier than the raw About progress to avoid
@@ -244,12 +138,10 @@ export function Home() {
   });
 
   const cardHeight = useTransform(
-    [cardFillProgress, waitingCardStartHeightMv],
-    (values: number[]) => {
-      const progress = values[0] ?? 0;
-      const startHeight = values[1] ?? 72;
-      return startHeight + (viewportHeight - startHeight) * progress;
-    },
+    cardFillProgress,
+    (progress) =>
+      waitingCardStartHeight +
+      (viewportHeight - waitingCardStartHeight) * progress,
   );
   const cardRadius = useTransform(cardFillProgress, [0, 1], [24, 0]);
   const cardGutter = useTransform(cardFillProgress, [0, 1], [baseGutterPx, 0]);
@@ -351,7 +243,6 @@ export function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex max-w-2xl flex-col gap-4 sm:flex-row"
-            ref={ctaRef}
           >
             <a
               href="https://github.com/79gun79"
