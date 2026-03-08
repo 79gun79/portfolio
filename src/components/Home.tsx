@@ -120,7 +120,7 @@ export function Home() {
 
   const isDesktop = viewportWidth >= 1024;
   const isMobile = viewportWidth < 640;
-  const waitingCardStartHeight = isDesktop ? 56 : isMobile ? 114 : 72;
+  const waitingCardStartHeight = isDesktop ? 56 : isMobile ? 98 : 72;
   const waitingCardMinBaseHeight = isDesktop ? 36 : 44;
 
   // Fill the viewport a bit earlier than the raw About progress to avoid
