@@ -12,6 +12,7 @@ export function Navigation() {
   const [isInHome, setIsInHome] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLoginPopup = async () => {
@@ -97,6 +98,7 @@ export function Navigation() {
   const navItems = [
     { label: 'About Me', href: '#about' },
     { label: 'Skills', href: '#skills' },
+    { label: 'Projects', href: '#projects' },
     { label: 'Experience', href: '#experience' },
   ];
 
@@ -109,14 +111,20 @@ export function Navigation() {
 
     const element = document.querySelector(href);
     if (element) {
-      const offset = 100;
+      const navHeight = navRef.current?.getBoundingClientRect().height ?? 0;
+      // Keep the section top tight to the fixed nav so the previous section
+      // doesn't peek through.
+      const offset = Math.max(0, navHeight - 2);
       const elementPosition =
         element.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - offset;
+      const offsetPosition = Math.max(0, elementPosition - offset);
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth',
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
       });
     }
   };
@@ -124,6 +132,7 @@ export function Navigation() {
   return (
     <>
       <nav
+        ref={navRef}
         className={twMerge(
           'fixed top-0 right-0 left-0 z-50 backdrop-blur-xl transition-all duration-300',
           isInHome
