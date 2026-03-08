@@ -128,9 +128,9 @@ export function Navigation() {
           'fixed top-0 right-0 left-0 z-50 backdrop-blur-xl transition-all duration-300',
           isInHome
             ? [
-                'border-b border-[#D9C37A]/35',
-                'bg-[linear-gradient(180deg,rgba(252,250,245,0.92),rgba(248,242,228,0.86))]',
-                'shadow-[0_10px_30px_rgba(0,0,0,0.18)]',
+                'bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(245,248,245,0.62))]',
+                'shadow-[0_10px_30px_rgba(2,6,23,0.12)]',
+                'ring-1 ring-black/5',
               ].join(' ')
             : isScrolled
               ? 'border-b border-slate-200/70 bg-white/92 shadow-sm'
@@ -171,9 +171,9 @@ export function Navigation() {
                     isInHome
                       ? [
                           'text-slate-800!',
-                          'hover:bg-[#F1DEAB]/70 hover:text-[#344032]!',
-                          'active:bg-[#E6C874]/70',
-                          'focus-visible:ring-[#D9C37A]/55',
+                          'hover:bg-white/55 hover:text-slate-900!',
+                          'active:bg-emerald-50/70',
+                          'focus-visible:ring-emerald-200/60',
                         ].join(' ')
                       : [
                           'text-slate-700!',

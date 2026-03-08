@@ -122,26 +122,39 @@ export function Home() {
   const waitingCardStartHeight = isDesktop ? 56 : 72;
   const waitingCardMinBaseHeight = isDesktop ? 36 : 44;
 
+  // Fill the viewport a bit earlier than the raw About progress to avoid
+  // leaving a visible band of the Home background at the top while About's
+  // content is already visible (due to About's large top padding).
+  const cardFillOffsetPx = isDesktop ? 180 : 140;
+  const cardFillEndProgress = Math.max(
+    0.55,
+    Math.min(1, 1 - cardFillOffsetPx / Math.max(1, viewportHeight)),
+  );
+  const cardFillProgress = useTransform(aboutProgress, (value) => {
+    if (value <= 0) return 0;
+    if (value >= cardFillEndProgress) return 1;
+    return value / cardFillEndProgress;
+  });
+
   const cardHeight = useTransform(
-    aboutProgress,
+    cardFillProgress,
     [0, 1],
     [waitingCardStartHeight, viewportHeight],
   );
-  const cardRadius = useTransform(aboutProgress, [0, 1], [24, 0]);
-  const cardGutter = useTransform(aboutProgress, [0, 1], [baseGutterPx, 0]);
-  const cardMaxWidth = useTransform(aboutProgress, [0, 1], [1536, 10000]);
+  const cardRadius = useTransform(cardFillProgress, [0, 1], [24, 0]);
+  const cardGutter = useTransform(cardFillProgress, [0, 1], [baseGutterPx, 0]);
+  const cardMaxWidth = useTransform(cardFillProgress, [0, 1], [1536, 10000]);
   const cardOpacity = useTransform(aboutRawProgress, (value) => {
     if (value <= 0.95) return 1;
     if (value >= 1.15) return 0;
     return 1 - (value - 0.95) / 0.2;
   });
   const cardShadow = useTransform(
-    aboutProgress,
+    cardFillProgress,
     [0, 1],
     ['0 30px 80px rgba(0,0,0,0.28)', '0 0px 0px rgba(0,0,0,0)'],
   );
 
-  const parallaxBgY = useTransform(aboutProgress, [0.35, 1], [0, -80]);
   const parallaxOverlayY = useTransform(aboutProgress, [0.35, 1], [0, -50]);
   const parallaxPatternY = useTransform(aboutProgress, [0.35, 1], [0, -35]);
   const sinkY = useTransform(aboutProgress, [0.35, 1], [0, 160]);
@@ -154,15 +167,12 @@ export function Home() {
     <section
       id="home"
       ref={containerRef}
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#071f0c] bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage:
+          'radial-gradient(900px circle at 25% 18%, rgba(180, 255, 170, 0.22), transparent 58%), radial-gradient(1100px circle at 78% 38%, rgba(60, 200, 90, 0.30), transparent 62%), radial-gradient(800px circle at 50% 105%, rgba(10, 60, 20, 0.55), transparent 60%), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 7px), linear-gradient(135deg, #071f0c 0%, #0b3d13 30%, #1f7a1f 68%, #8eea6a 100%)',
+      }}
     >
-      {/* Background Image */}
-      <motion.div
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        aria-hidden="true"
-        style={{ backgroundImage: "url('/background.png')", y: parallaxBgY }}
-      />
-
       {/* Readability Overlay */}
       <motion.div
         aria-hidden="true"
