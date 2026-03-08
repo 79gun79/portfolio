@@ -138,7 +138,7 @@ export function Navigation() {
         )}
       >
         <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex h-16 items-center justify-between sm:h-20 lg:h-24">
+          <div className="flex h-16 items-center justify-between sm:h-20 lg:h-18">
             {/* Logo */}
             <a
               href="#"

@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useScroll, useTransform } from 'motion/react';
-import { ArrowRight, SquareTerminal } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { TypeAnimation } from 'react-type-animation';
 import { twMerge } from 'tailwind-merge';
@@ -20,6 +20,9 @@ export function Home() {
   const [viewportHeight, setViewportHeight] = useState(() =>
     typeof window === 'undefined' ? 800 : window.innerHeight,
   );
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window === 'undefined' ? 1200 : window.innerWidth,
+  );
   const [baseGutterPx, setBaseGutterPx] = useState(() => {
     if (typeof window === 'undefined') return 12;
     if (window.innerWidth >= 1024) return 24;
@@ -32,6 +35,7 @@ export function Home() {
   useEffect(() => {
     const handleResize = () => {
       setViewportHeight(window.innerHeight);
+      setViewportWidth(window.innerWidth);
 
       if (window.innerWidth >= 1024) setBaseGutterPx(24);
       else if (window.innerWidth >= 640) setBaseGutterPx(16);
@@ -114,7 +118,15 @@ export function Home() {
     return value;
   });
 
-  const cardHeight = useTransform(aboutProgress, [0, 1], [96, viewportHeight]);
+  const isDesktop = viewportWidth >= 1024;
+  const waitingCardStartHeight = isDesktop ? 56 : 72;
+  const waitingCardMinBaseHeight = isDesktop ? 36 : 44;
+
+  const cardHeight = useTransform(
+    aboutProgress,
+    [0, 1],
+    [waitingCardStartHeight, viewportHeight],
+  );
   const cardRadius = useTransform(aboutProgress, [0, 1], [24, 0]);
   const cardGutter = useTransform(aboutProgress, [0, 1], [baseGutterPx, 0]);
   const cardMaxWidth = useTransform(aboutProgress, [0, 1], [1536, 10000]);
@@ -171,52 +183,42 @@ export function Home() {
       />
 
       <motion.div
-        className="relative z-10 container mx-auto max-w-7xl px-4 pt-24 pb-32 sm:px-6 sm:pt-32 sm:pb-40 lg:px-8 lg:pt-40 lg:pb-48"
+        className="relative z-10 container mx-auto max-w-7xl px-4 pt-24 pb-32 sm:px-6 sm:pt-32 sm:pb-40 lg:px-8 lg:pt-32 lg:pb-40"
         style={{ y: sinkY, scale: sinkScale, opacity: sinkOpacity }}
       >
         <motion.div
           className="mx-auto max-w-6xl"
           style={{ y: textY, opacity: textOpacity, scale: textScale }}
         >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-white/90 ring-1 ring-white/20 backdrop-blur-sm sm:mb-10 lg:mb-16"
-          >
-            <SquareTerminal className="h-4 w-4" />
-            <span className="text-sm font-medium">This is Gun's Portfolio</span>
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="console-font mb-8 text-5xl leading-[1.1] font-black tracking-tight text-white sm:mb-10 sm:text-7xl lg:mb-16 lg:text-[8rem]"
+            className="console-font mb-8 text-5xl leading-[1.1] font-black tracking-tight whitespace-pre-line text-white sm:mb-10 sm:text-7xl lg:mb-12 lg:text-[5rem]"
           >
+            <span>Console.log{'\n'}('</span>
             <TypeAnimation
-              sequence={["Console.log\n('Welcome!');", 2000, '', 500]}
+              sequence={['Welcome!', 1600, '', 700]}
               wrapper="span"
               speed={50}
-              style={{ whiteSpace: 'pre-line' }}
               cursor={true}
               repeat={Infinity}
             />
+            <span>');</span>
           </motion.h1>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-12 max-w-4xl space-y-2 text-lg leading-relaxed text-slate-200 sm:mb-16 sm:text-xl lg:mb-20 lg:text-2xl"
+            className="mb-12 max-w-4xl space-y-2 text-lg leading-relaxed text-slate-200 sm:mb-16 sm:text-xl lg:mb-20 lg:text-xl"
           >
             <p>책임감을 가지고 앞장서며,</p>
             <p>
               소통을 통해 함께 성장하는 개발자 <b>이재건</b>입니다.
             </p>
             <p>
-              다양한 팀 활동에서 팀장을 맡으며, 구성원을 이끌고 조율하는 경험을
+              다양한 활동에서 팀장을 맡으며, 구성원을 이끌고 조율하는 경험을
               쌓아왔습니다.
             </p>
             <p>
@@ -269,9 +271,7 @@ export function Home() {
           <motion.div
             className="bg-white"
             style={{
-              height: 'max(env(safe-area-inset-bottom), 60px)',
-              borderTopLeftRadius: cardRadius,
-              borderTopRightRadius: cardRadius,
+              height: `max(env(safe-area-inset-bottom), ${waitingCardMinBaseHeight}px)`,
             }}
           />
         </motion.div>
