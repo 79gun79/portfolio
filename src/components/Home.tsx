@@ -14,7 +14,13 @@ export function Home() {
     const reduceMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches;
-    return !reduceMotion && (window.scrollY || 0) < 8;
+
+    // Mobile browsers can report a small non-zero scrollY at the visual "top"
+    // due to URL bar/show-hide behavior and scroll restoration quirks.
+    // Use a larger initial threshold on mobile to keep the float feeling stable.
+    const isMobile = window.innerWidth < 640;
+    const initialDisableThreshold = isMobile ? 80 : 16;
+    return !reduceMotion && (window.scrollY || 0) < initialDisableThreshold;
   });
 
   const [viewportHeight, setViewportHeight] = useState(() =>
@@ -90,18 +96,37 @@ export function Home() {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) return;
 
+    // Hysteresis: separate enable/disable thresholds to avoid flicker on mobile
+    // (URL bar show/hide can cause tiny scrollY changes).
+    const isMobileNow = viewportWidth < 640;
+    const enableThreshold = isMobileNow ? 40 : 8;
+    const disableThreshold = isMobileNow ? 80 : 16;
+
+    let rafId = 0;
     const compute = () => {
-      // Only float at the very top to suggest "scroll up / reveal".
-      setFloatEnabled((window.scrollY || 0) < 8);
+      rafId = 0;
+      const y = window.scrollY || 0;
+      setFloatEnabled((prev) => {
+        if (y <= enableThreshold) return true;
+        if (y >= disableThreshold) return false;
+        return prev;
+      });
     };
 
-    const rafId = window.requestAnimationFrame(compute);
-    window.addEventListener('scroll', compute, { passive: true });
-    return () => {
-      window.cancelAnimationFrame(rafId);
-      window.removeEventListener('scroll', compute);
+    const schedule = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(compute);
     };
-  }, []);
+
+    schedule();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, [viewportWidth]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -144,7 +169,7 @@ export function Home() {
       (viewportHeight - waitingCardStartHeight) * progress,
   );
   const cardRadius = useTransform(cardFillProgress, [0, 1], [24, 0]);
-  const cardGutterStartPx = isMobile ? 0 : baseGutterPx;
+  const cardGutterStartPx = baseGutterPx;
   const cardGutter = useTransform(
     cardFillProgress,
     [0, 1],

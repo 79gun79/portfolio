@@ -131,7 +131,7 @@ export function Projects() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 14, scale: 0.98 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="fixed inset-0 z-[60] flex items-end justify-center p-4 sm:items-center"
+              className="fixed inset-0 z-60 flex items-end justify-center p-4 sm:items-center"
               role="dialog"
               aria-modal="true"
               aria-label={`${activeProject.title} 상세`}
