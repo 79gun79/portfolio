@@ -2,27 +2,9 @@ import { motion } from 'motion/react';
 import { Post } from './Post';
 import { useEffect, useState } from 'react';
 import { fetchPosts } from '../api/post';
-import { logEvent } from 'firebase/analytics';
-import { analytics } from '../util/firebase';
 
 export function Posts() {
   const [posts, setPosts] = useState<PostData[]>([]);
-
-  const trackPostClick = (post: PostData) => {
-    if (!analytics) return;
-
-    try {
-      logEvent(analytics, 'select_content', {
-        ...(import.meta.env.DEV ? { debug_mode: true } : null),
-        content_type: 'post',
-        item_id: post.id,
-        item_name: post.title,
-        tags: post.tags ?? [],
-      });
-    } catch {
-      // ignore
-    }
-  };
 
   // useEffect(() => {
   //   seedPosts();
@@ -73,7 +55,7 @@ export function Posts() {
               transition={{ duration: 0.5, delay: index * 0.08 }}
               viewport={{ once: false, amount: 0.25 }}
             >
-              <Post post={post} onClick={() => trackPostClick(post)} />
+              <Post post={post} />
             </motion.div>
           ))}
         </div>

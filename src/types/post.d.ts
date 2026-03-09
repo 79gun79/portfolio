@@ -3,8 +3,9 @@ type PostData = {
   title: string;
   description: string;
   tags?: string[];
-  readingTimeMinutes?: number;
   coverImageUrl?: string;
+  /** Markdown file path (e.g. '/posts/post-1.md' under public/) */
+  contentMd?: string;
   createdAt?: string | Timestamp;
   updatedAt?: string | Timestamp;
 };

@@ -8,9 +8,9 @@ const samplePosts: PostData[] = [
     description:
       'Redirect 방식에서 no-result가 발생하는 케이스를 추적하고, 팝업 로그인으로 전환해 안정적으로 인증을 완료했습니다.',
     tags: ['Firebase', 'Auth', 'React'],
-    readingTimeMinutes: 3,
     coverImageUrl:
       'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1469&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    contentMd: '/posts/firebase-google-login.md',
   },
   {
     id: '2',
@@ -18,7 +18,7 @@ const samplePosts: PostData[] = [
     description:
       '프로젝트의 @theme 토큰에 brown 계열 팔레트를 정의하고, 네비게이션과 UI 컴포넌트에 자연스럽게 적용했습니다.',
     tags: ['Tailwind', 'Design System'],
-    readingTimeMinutes: 2,
+    contentMd: '/posts/tailwind-brown-palette.md',
   },
   {
     id: '3',
@@ -26,8 +26,8 @@ const samplePosts: PostData[] = [
     description:
       '모션과 타이포 스케일을 정리해 랜딩 경험을 개선하고, 레이아웃 리듬을 맞췄습니다.',
     tags: ['UI', 'Motion'],
-    readingTimeMinutes: 4,
     coverImageUrl: '/example1.gif',
+    contentMd: '/posts/portfolio-motion-typo.md',
   },
 ];
 
