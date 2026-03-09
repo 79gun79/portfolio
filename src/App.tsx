@@ -7,7 +7,6 @@ import { Projects } from './components/Projects';
 import { Posts } from './components/Posts';
 import { Start } from './components/Start';
 import Skills from './components/Skills';
-import Experience from './components/Experience';
 import { Navigation } from './components/Navigation';
 
 const INTRO_DURATION_MS = 2000;
@@ -80,7 +79,6 @@ export default function App() {
               <About />
               <Skills />
               <Projects />
-              <Experience />
               <Posts />
             </div>
           }

@@ -386,10 +386,13 @@ export default function Skills() {
           </div>
           <h2
             id={sectionLabelId}
-            className="mb-6 text-3xl font-black tracking-tight text-slate-900 sm:mb-8 sm:text-5xl lg:text-6xl"
+            className="mb-3 text-3xl font-black tracking-tight text-slate-900 sm:text-5xl lg:text-6xl"
           >
-            경험을 증명하는 기술 스택
+            제가 잘하는 것들...
           </h2>
+          <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
+            클릭하시면 자세한 기술 스택과 설명을 볼 수 있습니다.
+          </p>
         </div>
 
         <div>

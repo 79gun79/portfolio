@@ -56,7 +56,7 @@ export function Posts() {
           <div className="mb-4 text-sm font-medium text-slate-500 sm:mb-6 sm:text-base">
             Posts
           </div>
-          <h2 className="mb-3 text-3xl font-bold text-slate-900 sm:text-5xl lg:text-6xl">
+          <h2 className="mb-3 text-3xl text-slate-900 sm:text-5xl lg:text-6xl">
             최근 게시글
           </h2>
           <p className="max-w-3xl text-base text-slate-600 sm:text-lg">

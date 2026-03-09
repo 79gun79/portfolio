@@ -425,9 +425,12 @@ export function About() {
           <div className="mb-4 text-sm font-medium text-slate-500 sm:mb-6 sm:text-base">
             About Me
           </div>
-          <h2 className="mb-6 text-3xl text-slate-900 sm:mb-8 sm:text-5xl lg:text-6xl">
+          <h2 className="mb-3 text-3xl text-slate-900 sm:text-5xl lg:text-6xl">
             반갑습니다! 저는...
           </h2>
+          <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
+            저에 대한 간단한 소개와 연혁입니다.
+          </p>
         </motion.div>
 
         {/* Basic Info */}

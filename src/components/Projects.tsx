@@ -15,6 +15,18 @@ function ProjectTag({ children }: { children: string }) {
 export function Projects() {
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  const displayProjects = [...projectData, ...projectData, ...projectData];
+  const thumbnailSrcFor = (id: string) => {
+    const hash = Array.from(id).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const hueA = (hash * 29) % 360;
+    const hueB = (hueA + 42) % 360;
+    const hueC = (hueA + 120) % 360;
+
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">\n  <defs>\n    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">\n      <stop offset="0" stop-color="hsl(${hueA} 80% 68%)"/>\n      <stop offset="0.55" stop-color="hsl(${hueB} 82% 60%)"/>\n      <stop offset="1" stop-color="hsl(${hueC} 70% 54%)"/>\n    </linearGradient>\n    <radialGradient id="r1" cx="20%" cy="20%" r="70%">\n      <stop offset="0" stop-color="rgba(255,255,255,0.55)"/>\n      <stop offset="1" stop-color="rgba(255,255,255,0)"/>\n    </radialGradient>\n    <radialGradient id="r2" cx="85%" cy="95%" r="75%">\n      <stop offset="0" stop-color="rgba(0,0,0,0.18)"/>\n      <stop offset="1" stop-color="rgba(0,0,0,0)"/>\n    </radialGradient>\n    <pattern id="p" width="18" height="18" patternUnits="userSpaceOnUse">\n      <path d="M0 18 L18 0" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>\n    </pattern>\n  </defs>\n  <rect width="1200" height="720" fill="url(#g)"/>\n  <rect width="1200" height="720" fill="url(#r1)"/>\n  <rect width="1200" height="720" fill="url(#r2)"/>\n  <rect width="1200" height="720" fill="url(#p)" opacity="0.55"/>\n</svg>`;
+
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  };
+
   const activeProject = useMemo<ProjectData | null>(() => {
     if (!activeId) return null;
     return projectData.find((p) => p.id === activeId) ?? null;
@@ -25,7 +37,6 @@ export function Projects() {
       id="projects"
       className={twMerge(
         'relative overflow-hidden bg-white px-4 py-20 sm:px-6 sm:py-32 lg:py-44',
-        // subtle background tint that matches the "green / grass" mood
         'bg-[radial-gradient(1200px_600px_at_10%_0%,rgba(16,185,129,0.10),transparent_60%),radial-gradient(900px_500px_at_90%_10%,rgba(34,197,94,0.10),transparent_55%)]',
       )}
     >
@@ -38,84 +49,72 @@ export function Projects() {
           className="mb-10 sm:mb-14"
         >
           <div className="mb-4 text-sm font-medium text-slate-500 sm:mb-6 sm:text-base">
-            Our Projects
+            Projects
           </div>
-          <h2 className="mb-3 text-3xl font-bold text-slate-900 sm:text-5xl lg:text-6xl">
-            프로젝트 소개
+          <h2 className="mb-3 text-3xl text-slate-900 sm:text-5xl lg:text-6xl">
+            제가 만든 것들...
           </h2>
           <p className="max-w-3xl text-base text-slate-600 sm:text-lg">
-            실제로 만들면서 해결했던 문제와 결과를 간결하게 정리했습니다. 카드를
-            클릭하면 상세 내용을 확인할 수 있어요.
+            클릭하시면 자세한 프로젝트를 볼 수 있습니다.
           </p>
         </motion.div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {projectData.map((p, index) => (
-            <motion.button
-              key={p.id}
-              type="button"
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
-              viewport={{ once: false, amount: 0.2 }}
-              onClick={() => setActiveId(p.id)}
-              className={twMerge(
-                'group relative w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/70 p-6 text-left shadow-sm backdrop-blur-sm',
-                'transition-all hover:-translate-y-0.5 hover:border-emerald-200/70 hover:shadow-md',
-                'focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:outline-none',
-              )}
+        <div className="relative">
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-white/60 via-white/20 to-transparent sm:w-12"
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-white/60 via-white/20 to-transparent sm:w-12"
+            aria-hidden="true"
+          />
+
+          <div className="relative overflow-hidden py-12">
+            <motion.div
+              className="flex gap-6 px-1 py-1"
+              animate={{
+                x: [0, -(160 + 24) * projectData.length],
+              }}
+              transition={{
+                x: {
+                  repeat: Infinity,
+                  repeatType: 'loop',
+                  duration: 30,
+                  ease: 'linear',
+                },
+              }}
             >
-              {/* Accent */}
-              <div className="pointer-events-none absolute -top-28 -right-28 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.22),transparent_65%)]" />
-
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-xs font-semibold text-emerald-700">
-                    {String(index + 1).padStart(2, '0')}
-                  </div>
-                  <div className="mt-2 text-xl font-bold text-slate-900">
-                    {p.title}
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm">
-                  자세히
-                </div>
-              </div>
-
-              <p className="mb-5 line-clamp-2 text-sm leading-relaxed text-slate-600">
-                {p.summary}
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {p.stack.slice(0, 5).map((t) => (
-                  <ProjectTag key={t}>{t}</ProjectTag>
-                ))}
-                {p.stack.length > 5 ? (
-                  <span className="text-xs font-semibold text-slate-500">
-                    +{p.stack.length - 5}
-                  </span>
-                ) : null}
-              </div>
-
-              <div className="mt-5 flex items-center justify-between text-sm text-slate-500">
-                <span className="font-medium">
-                  {p.period ?? '—'}
-                  {p.role ? ` · ${p.role}` : ''}
-                </span>
-                <span className="font-semibold text-emerald-700 transition-colors group-hover:text-emerald-800">
-                  View
-                </span>
-              </div>
-            </motion.button>
-          ))}
+              {displayProjects.map((p, i) => {
+                return (
+                  <button
+                    key={`${p.id}-${i}`}
+                    onClick={() => setActiveId(p.id)}
+                    className="group relative h-40 w-40 shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-br from-emerald-50 via-white to-slate-50 shadow-md transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:from-emerald-100 hover:via-white hover:to-slate-100 hover:shadow-2xl"
+                    aria-label={`${p.title} 상세 열기`}
+                  >
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4">
+                      <img
+                        src={p.thumbnail ?? thumbnailSrcFor(p.id)}
+                        alt={p.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="mb-2 h-20 w-20 object-contain transition-all duration-300 group-hover:scale-110"
+                      />
+                      <p className="text-md line-clamp-2 text-center font-bold text-slate-700 transition-all duration-300 group-hover:text-emerald-700">
+                        {p.title}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </motion.div>
+          </div>
         </div>
       </div>
 
       <AnimatePresence>
-        {activeProject ? (
+        {activeProject && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -125,22 +124,32 @@ export function Projects() {
               onClick={() => setActiveId(null)}
             />
 
-            {/* Modal */}
             <motion.div
               initial={{ opacity: 0, y: 16, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 14, scale: 0.98 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="fixed inset-0 z-60 flex items-end justify-center p-4 sm:items-center"
+              className="fixed inset-0 z-60 flex items-center justify-center p-4"
               role="dialog"
               aria-modal="true"
               aria-label={`${activeProject.title} 상세`}
             >
               <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-                {/* Top accent */}
                 <div className="pointer-events-none absolute -top-36 -right-36 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.26),transparent_62%)]" />
 
-                <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-6">
+                <div className="absolute top-6 left-6 z-10 h-24 w-24 overflow-hidden rounded-2xl border-2 border-white bg-linear-to-br from-slate-50 to-slate-100 shadow-lg ring-1 ring-slate-900/5">
+                  <img
+                    src={
+                      activeProject.logo ??
+                      activeProject.thumbnail ??
+                      thumbnailSrcFor(activeProject.id)
+                    }
+                    alt={activeProject.title}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+
+                <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-6 pl-36">
                   <div>
                     <div className="text-sm font-semibold text-emerald-700">
                       Project
@@ -148,16 +157,16 @@ export function Projects() {
                     <div className="mt-1 text-2xl font-bold text-slate-900">
                       {activeProject.title}
                     </div>
-                    <div className="mt-2 text-sm font-medium text-slate-600">
-                      {activeProject.period ?? '—'}
-                      {activeProject.role ? ` · ${activeProject.role}` : ''}
+                    <div className="mt-2 space-y-1 text-sm font-medium text-slate-600">
+                      <div>{activeProject.period ?? '—'}</div>
+                      {activeProject.role && <div>{activeProject.role}</div>}
                     </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setActiveId(null)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white/70 text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:outline-none"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white/70 text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-emerald-200 focus-visible:outline-none"
                     aria-label="닫기"
                   >
                     <X className="h-5 w-5" />
@@ -231,7 +240,7 @@ export function Projects() {
               </div>
             </motion.div>
           </>
-        ) : null}
+        )}
       </AnimatePresence>
     </section>
   );
