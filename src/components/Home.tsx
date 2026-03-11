@@ -11,16 +11,15 @@ export function Home() {
 
   const [floatEnabled, setFloatEnabled] = useState(() => {
     if (typeof window === 'undefined') return false;
+
     const reduceMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches;
 
-    // Mobile browsers can report a small non-zero scrollY at the visual "top"
-    // due to URL bar/show-hide behavior and scroll restoration quirks.
-    // Use a larger initial threshold on mobile to keep the float feeling stable.
     const isMobile = window.innerWidth < 640;
-    const initialDisableThreshold = isMobile ? 80 : 16;
-    return !reduceMotion && (window.scrollY || 0) < initialDisableThreshold;
+    if (isMobile) return !reduceMotion;
+
+    return !reduceMotion && (window.scrollY || 0) < 16;
   });
 
   const [viewportHeight, setViewportHeight] = useState(() =>
@@ -96,11 +95,14 @@ export function Home() {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) return;
 
-    // Hysteresis: separate enable/disable thresholds to avoid flicker on mobile
-    // (URL bar show/hide can cause tiny scrollY changes).
     const isMobileNow = viewportWidth < 640;
-    const enableThreshold = isMobileNow ? 40 : 8;
-    const disableThreshold = isMobileNow ? 80 : 16;
+    if (isMobileNow) {
+      const id = window.requestAnimationFrame(() => setFloatEnabled(true));
+      return () => window.cancelAnimationFrame(id);
+    }
+
+    const enableThreshold = 8;
+    const disableThreshold = 16;
 
     let rafId = 0;
     const compute = () => {
@@ -145,6 +147,8 @@ export function Home() {
 
   const isDesktop = viewportWidth >= 1024;
   const isMobile = viewportWidth < 640;
+  const floatKeyframes = isMobile ? [-8, -26, -8] : [-6, -18, -6];
+  const floatDuration = isMobile ? 2.6 : 2.8;
   const waitingCardStartHeight = isDesktop ? 56 : isMobile ? 98 : 72;
   const waitingCardMinBaseHeight = isDesktop ? 36 : 44;
 
@@ -313,10 +317,10 @@ export function Home() {
       <motion.div
         aria-hidden="true"
         className="pointer-events-none fixed inset-x-0 bottom-0 z-10"
-        animate={floatEnabled ? { y: [-6, -18, -6] } : { y: 0 }}
+        animate={floatEnabled ? { y: floatKeyframes } : { y: 0 }}
         transition={
           floatEnabled
-            ? { duration: 2.8, repeat: Infinity, ease: 'easeInOut' }
+            ? { duration: floatDuration, repeat: Infinity, ease: 'easeInOut' }
             : { duration: 0.2 }
         }
         style={{

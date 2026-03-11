@@ -474,7 +474,7 @@ export function About() {
                   type="button"
                   onClick={handlePaperMoreClick}
                   aria-label="아래로 더 보기"
-                  className="pointer-events-auto inline-flex h-12 w-12 animate-bounce items-center justify-center rounded-full bg-slate-900 text-white shadow-lg shadow-slate-900/15 transition-colors hover:bg-slate-800 motion-reduce:animate-none"
+                  className="pointer-events-auto inline-flex h-12 w-12 animate-bounce items-center justify-center rounded-full bg-slate-900 text-white shadow-lg shadow-slate-900/15 transition-colors hover:bg-slate-800 sm:motion-reduce:animate-none"
                 >
                   <ChevronDown className="h-6 w-6" />
                 </button>
