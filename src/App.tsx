@@ -9,6 +9,7 @@ import { Start } from './components/Start';
 import Skills from './components/Skills';
 import { Navigation } from './components/Navigation';
 import { PostDetail } from './page/PostDetail';
+import { Footer } from './components/Footer';
 
 const INTRO_DURATION_MS = 2000;
 
@@ -36,6 +37,7 @@ function MainPage() {
       <Skills />
       <Projects />
       <Posts />
+      <Footer />
     </div>
   );
 }

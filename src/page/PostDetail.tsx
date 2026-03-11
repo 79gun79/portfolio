@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Footer } from '../components/Footer';
 
 // Timestamp 형식의 날짜를 YYYY-MM-DD 문자열로 변환
 function formatDate(date: string | Timestamp): string {
@@ -337,6 +338,8 @@ export function PostDetail() {
           )}
         </article>
       </main>
+
+      <Footer />
     </div>
   );
 }
