@@ -3,7 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Tag } from 'lucide-react';
 import { collection, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../util/firebase';
+import { generateThumbnail } from '../util/thumbnail';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // Timestamp 형식의 날짜를 YYYY-MM-DD 문자열로 변환
 function formatDate(date: string | Timestamp): string {
@@ -20,8 +24,11 @@ export function PostDetail() {
   const [post, setPost] = useState<PostData | null>(null);
   const [markdown, setMarkdown] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [isHeaderCompact, setIsHeaderCompact] = useState(false);
 
   const displayDate = post ? formatDate(post.updatedAt ?? post.createdAt) : '';
+  const fallbackCover = post ? generateThumbnail(post.title) : '';
+  const coverSrc = post?.coverImageUrl ?? fallbackCover;
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -56,6 +63,63 @@ export function PostDetail() {
     fetchPost();
   }, [id]);
 
+  useEffect(() => {
+    // Hysteresis prevents flicker near the boundary when the header height
+    // change slightly affects scroll position.
+    const enterCompactAt = 84;
+    const exitCompactAt = 48;
+    let ticking = false;
+    let lastY = window.scrollY || 0;
+    let lastDirection: 'up' | 'down' | null = null;
+    let lockUntil = 0;
+    const lockMs = 320;
+
+    const compute = () => {
+      const y = window.scrollY || 0;
+      const direction: 'up' | 'down' | null =
+        y > lastY ? 'down' : y < lastY ? 'up' : null;
+      lastY = y;
+      if (direction) lastDirection = direction;
+      const isInitialCompute = lastDirection === null;
+
+      setIsHeaderCompact((prev) => {
+        const now = Date.now();
+        if (!isInitialCompute && now < lockUntil) return prev;
+
+        let next = prev;
+        if (isInitialCompute) {
+          // Initial state: don't apply direction gating.
+          next = y > enterCompactAt ? true : y < exitCompactAt ? false : prev;
+        } else {
+          // Direction gating: prevents layout-shift feedback loops.
+          if (!prev && lastDirection === 'down' && y > enterCompactAt) {
+            next = true;
+          } else if (prev && lastDirection === 'up' && y < exitCompactAt) {
+            next = false;
+          }
+        }
+
+        if (next !== prev) {
+          lockUntil = now + lockMs;
+        }
+        return next;
+      });
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        ticking = false;
+        compute();
+      });
+    };
+
+    compute();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -86,57 +150,120 @@ export function PostDetail() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white">
-        <div className="container mx-auto max-w-4xl px-4 py-6">
-          <button
-            onClick={() => navigate('/#posts')}
-            className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-emerald-600"
+      <header
+        className={[
+          'sticky top-0 z-40 overflow-hidden border-b border-slate-200 bg-slate-950 transition-all duration-300',
+          isHeaderCompact ? 'shadow-lg shadow-slate-900/10' : '',
+        ].join(' ')}
+      >
+        <div className="absolute inset-0">
+          <img
+            src={coverSrc}
+            alt={post.title}
+            className={[
+              'h-full w-full object-cover transition-opacity duration-300',
+              isHeaderCompact ? 'opacity-55' : 'opacity-95',
+            ].join(' ')}
+            onError={(e) => {
+              const img = e.currentTarget;
+              if (img.src === fallbackCover) return;
+              img.onerror = null;
+              img.src = fallbackCover;
+            }}
+          />
+          <div
+            className={[
+              'absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/60 to-slate-950/10 transition-opacity duration-300',
+              isHeaderCompact ? 'opacity-90' : 'opacity-100',
+            ].join(' ')}
+          />
+        </div>
+
+        <div className="container mx-auto max-w-6xl px-4">
+          <div
+            className={[
+              'relative flex flex-col',
+              isHeaderCompact
+                ? 'justify-center sm:justify-between'
+                : 'justify-between',
+              isHeaderCompact
+                ? 'h-20 py-4 sm:h-24 sm:py-4'
+                : 'h-56 py-6 sm:h-72 sm:py-8 lg:h-80',
+            ].join(' ')}
           >
-            <ArrowLeft className="h-4 w-4" />
-            뒤로 가기
-          </button>
+            <div
+              className={[
+                'flex items-center',
+                isHeaderCompact ? 'gap-3' : '',
+              ].join(' ')}
+            >
+              <button
+                onClick={() => navigate('/#posts')}
+                aria-label="뒤로 가기"
+                title="뒤로 가기"
+                className={[
+                  'inline-flex cursor-pointer items-center gap-2 rounded-full bg-white/90 font-semibold text-slate-800 shadow-lg ring-1 ring-slate-900/10 backdrop-blur transition-colors hover:bg-white',
+                  isHeaderCompact ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm',
+                ].join(' ')}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className={isHeaderCompact ? 'hidden sm:inline' : ''}>
+                  뒤로 가기
+                </span>
+              </button>
 
-          {post.coverImageUrl && (
-            <div className="mb-6 overflow-hidden rounded-2xl">
-              <img
-                src={post.coverImageUrl}
-                alt={post.title}
-                className="aspect-video w-full object-cover"
-              />
+              {isHeaderCompact ? (
+                <div className="min-w-0 flex-1 sm:hidden">
+                  <div className="truncate text-sm font-semibold text-white/95">
+                    {post.title}
+                  </div>
+                </div>
+              ) : null}
             </div>
-          )}
 
-          <h1 className="mb-4 text-3xl font-bold text-slate-900 sm:text-4xl lg:text-5xl">
-            {post.title}
-          </h1>
+            <div className="max-w-4xl">
+              <h1
+                className={[
+                  'font-bold tracking-tight text-white drop-shadow-sm transition-[font-size,line-height] duration-300',
+                  isHeaderCompact
+                    ? 'line-clamp-1 hidden text-lg leading-tight sm:block sm:text-xl'
+                    : 'text-3xl sm:text-4xl lg:text-5xl',
+                ].join(' ')}
+              >
+                {post.title}
+              </h1>
 
-          <div className="flex flex-wrap items-center gap-4">
-            {displayDate && (
-              <div className="inline-flex items-center gap-2 text-sm text-slate-600">
-                <Calendar className="h-4 w-4" />
-                <span>{displayDate}</span>
-              </div>
-            )}
+              {!isHeaderCompact ? (
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  {displayDate && (
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2 py-1 text-[11px] text-white/90 ring-1 ring-white/15 backdrop-blur sm:gap-2 sm:px-3 sm:py-1.5 sm:text-sm">
+                      <Calendar className="h-3.5 w-3.5 text-emerald-200 sm:h-4 sm:w-4" />
+                      <span className="font-medium">{displayDate}</span>
+                    </div>
+                  )}
 
-            {post.tags?.length ? (
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200/60 bg-emerald-50/70 px-3 py-1 text-xs font-semibold text-emerald-800"
-                  >
-                    <Tag className="h-3 w-3" />
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : null}
+                  {post.tags?.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {post.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-1 text-[11px] font-semibold text-emerald-50 ring-1 ring-emerald-200/20 backdrop-blur sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
+                        >
+                          <Tag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </header>
 
       {/* Content */}
-      <main className="container mx-auto max-w-4xl px-4 py-12">
+      <main className="container mx-auto max-w-6xl px-4 py-12">
         <article className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-12">
           {post.description && (
             <p className="mb-8 border-l-4 border-emerald-500 pl-6 text-lg leading-relaxed text-slate-700">
@@ -145,11 +272,17 @@ export function PostDetail() {
           )}
 
           {markdown ? (
-            <div className="prose prose-lg prose-slate prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:tracking-tight prose-h1:text-4xl prose-h1:text-slate-900 prose-h2:mt-12 prose-h2:mb-6 prose-h2:text-3xl prose-h2:text-slate-900 prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-2xl prose-h3:text-slate-800 prose-p:mb-6 prose-p:leading-relaxed prose-p:text-slate-700 prose-a:font-semibold prose-a:text-emerald-600 prose-a:no-underline prose-a:transition-colors hover:prose-a:text-emerald-700 hover:prose-a:underline prose-strong:font-bold prose-strong:text-slate-900 prose-ul:my-6 prose-ul:list-disc prose-ul:pl-6 prose-ol:my-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:my-2 prose-li:text-slate-700 prose-code:rounded-md prose-code:bg-slate-100 prose-code:px-2 prose-code:py-1 prose-code:text-sm prose-code:font-mono prose-code:text-emerald-700 prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-200 prose-pre:bg-slate-900 prose-pre:p-6 prose-pre:text-sm prose-pre:leading-relaxed prose-pre:text-slate-100 prose-pre:shadow-lg prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-slate-700 prose-img:rounded-xl prose-img:shadow-md max-w-none">
+            <div className="markdown">
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
+                  pre: ({ children }) => <>{children}</>,
                   code: ({ className, children, ...props }) => {
-                    const isInline = !className;
+                    const languageMatch = /language-(\w+)/.exec(
+                      className ?? '',
+                    );
+                    const isInline = !languageMatch;
+
                     if (isInline) {
                       return (
                         <code className={className} {...props}>
@@ -157,10 +290,39 @@ export function PostDetail() {
                         </code>
                       );
                     }
+
+                    const language = languageMatch?.[1] ?? '';
+                    const code = String(children).replace(/\n$/, '');
+
                     return (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
+                      <div className="not-prose my-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shadow-lg">
+                        <div className="flex items-center justify-between border-b border-white/10 px-4 py-2 text-xs text-slate-200">
+                          <span className="font-semibold tracking-wide uppercase">
+                            {language}
+                          </span>
+                        </div>
+                        <div className="scrollbar-hide overflow-x-auto overscroll-x-contain">
+                          <SyntaxHighlighter
+                            language={language}
+                            style={oneDark}
+                            PreTag="div"
+                            customStyle={{
+                              margin: 0,
+                              background: 'transparent',
+                              padding: '1.25rem',
+                              minWidth: 'max-content',
+                            }}
+                            codeTagProps={{
+                              style: {
+                                fontFamily:
+                                  'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                              },
+                            }}
+                          >
+                            {code}
+                          </SyntaxHighlighter>
+                        </div>
+                      </div>
                     );
                   },
                 }}

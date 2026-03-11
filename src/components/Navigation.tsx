@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { loginWithGooglePopup, logout } from '../services/auth';
 
 export function Navigation() {
+  const DEFAULT_PROFILE_SRC = '/icon/profile-placeholder.svg';
   const { user } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -14,6 +15,15 @@ export function Navigation() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleProfileImgError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
+  ) => {
+    const img = e.currentTarget;
+    if (img.src.endsWith(DEFAULT_PROFILE_SRC)) return;
+    img.onerror = null;
+    img.src = DEFAULT_PROFILE_SRC;
+  };
 
   const handleLoginPopup = async () => {
     if (isLoggingIn) return;
@@ -109,24 +119,37 @@ export function Navigation() {
     e.preventDefault();
     setIsMobileMenuOpen(false);
 
-    const element = document.querySelector(href);
-    if (element) {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+
+    const scrollToSection = () => {
+      const element = document.querySelector(href);
+      if (!element) return;
+
       const navHeight = navRef.current?.getBoundingClientRect().height ?? 0;
-      // Keep the section top tight to the fixed nav so the previous section
-      // doesn't peek through.
-      const offset = Math.max(0, navHeight - 2);
+
+      // On mobile, give a bit of extra offset so the previous section doesn't
+      // peek through under the translucent nav.
+      const offset = Math.max(0, navHeight);
+
       const elementPosition =
-        element.getBoundingClientRect().top + window.pageYOffset;
+        element.getBoundingClientRect().top + (window.scrollY || 0);
       const offsetPosition = Math.max(0, elementPosition - offset);
-      const prefersReducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches;
 
       window.scrollTo({
         top: offsetPosition,
         behavior: prefersReducedMotion ? 'auto' : 'smooth',
       });
-    }
+    };
+
+    // Let state/layout settle (mobile menu close, body overflow restore) before
+    // reading positions.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        scrollToSection();
+      });
+    });
   };
 
   return (
@@ -217,9 +240,10 @@ export function Navigation() {
                     aria-label="프로필 메뉴"
                   >
                     <img
-                      src={user.photoURL ?? ''}
+                      src={user.photoURL ? user.photoURL : DEFAULT_PROFILE_SRC}
                       alt="프로필"
                       className="h-10 w-10 rounded-full object-cover"
+                      onError={handleProfileImgError}
                     />
                   </button>
 
@@ -235,9 +259,14 @@ export function Navigation() {
                         <div className="border-b border-slate-100 p-4">
                           <div className="flex items-center gap-3">
                             <img
-                              src={user.photoURL ?? ''}
+                              src={
+                                user.photoURL
+                                  ? user.photoURL
+                                  : DEFAULT_PROFILE_SRC
+                              }
                               alt="프로필"
                               className="h-12 w-12 rounded-full object-cover"
+                              onError={handleProfileImgError}
                             />
                             <div className="flex-1 overflow-hidden">
                               <p className="truncate font-semibold text-slate-900">
@@ -357,9 +386,14 @@ export function Navigation() {
                       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <div className="flex items-center gap-3">
                           <img
-                            src={user.photoURL ?? ''}
+                            src={
+                              user.photoURL
+                                ? user.photoURL
+                                : DEFAULT_PROFILE_SRC
+                            }
                             alt="프로필"
                             className="h-12 w-12 rounded-full object-cover"
+                            onError={handleProfileImgError}
                           />
                           <div className="flex-1 overflow-hidden">
                             <p className="truncate font-semibold text-slate-900">

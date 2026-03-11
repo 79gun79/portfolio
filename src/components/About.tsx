@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Skeleton } from './ui/Skeleton';
 import { Spinner } from './ui/Spinner';
@@ -12,6 +12,7 @@ import {
   GraduationCap,
   Briefcase,
   FolderKanban,
+  ChevronDown,
 } from 'lucide-react';
 
 type ProfileItem = {
@@ -56,6 +57,9 @@ const profileItems: ProfileItem[] = [
 export function About() {
   const [isPaperPreviewOpen, setIsPaperPreviewOpen] = useState(false);
   const [isBojBadgePreviewOpen, setIsBojBadgePreviewOpen] = useState(false);
+  const paperScrollRef = useRef<HTMLDivElement>(null);
+  const [paperHasMoreBelow, setPaperHasMoreBelow] = useState(false);
+  const [paperMoreDismissed, setPaperMoreDismissed] = useState(false);
   const [bojBadgeStatus, setBojBadgeStatus] = useState<
     'idle' | 'loading' | 'loaded' | 'error'
   >('idle');
@@ -82,6 +86,54 @@ export function About() {
     return () => window.clearTimeout(timeoutId);
   }, [isPaperPreviewOpen, paperStatus, paperReloadKey]);
 
+  const updatePaperHasMoreBelow = useCallback(() => {
+    const el = paperScrollRef.current;
+    if (!el) return;
+    const threshold = 8;
+    const hasMore =
+      el.scrollTop + el.clientHeight < el.scrollHeight - threshold;
+    setPaperHasMoreBelow(hasMore);
+  }, []);
+
+  const handlePaperMoreClick = useCallback(() => {
+    const el = paperScrollRef.current;
+    if (!el) return;
+
+    setPaperMoreDismissed(true);
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    const nextTop = Math.min(
+      el.scrollTop + Math.max(240, el.clientHeight * 0.85),
+      el.scrollHeight,
+    );
+
+    el.scrollTo({
+      top: nextTop,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  }, []);
+
+  const handlePaperScroll = useCallback(() => {
+    const el = paperScrollRef.current;
+    if (el && el.scrollTop > 4) setPaperMoreDismissed(true);
+    updatePaperHasMoreBelow();
+  }, [updatePaperHasMoreBelow]);
+
+  useEffect(() => {
+    if (!isPaperPreviewOpen) return;
+    const rafId = window.requestAnimationFrame(() => {
+      updatePaperHasMoreBelow();
+    });
+    return () => window.cancelAnimationFrame(rafId);
+  }, [
+    isPaperPreviewOpen,
+    paperStatus,
+    paperLoadedCount,
+    paperReloadKey,
+    updatePaperHasMoreBelow,
+  ]);
+
   const openBojBadgePreview = () => {
     setBojBadgeStatus('loading');
     setBojBadgeReloadKey((k) => k + 1);
@@ -96,6 +148,7 @@ export function About() {
     setPaperStatus('loading');
     setPaperLoadedCount(0);
     setPaperReloadKey((k) => k + 1);
+    setPaperMoreDismissed(false);
     setIsPaperPreviewOpen(true);
   };
 
@@ -240,7 +293,7 @@ export function About() {
     >
       {isBojBadgePreviewOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-60 flex items-start justify-center bg-black/60 px-4 pt-24 pb-4 sm:items-center sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-label="백준 배지 미리보기"
@@ -313,17 +366,19 @@ export function About() {
 
       {isPaperPreviewOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-60 flex items-start justify-center bg-black/60 px-4 pt-24 pb-4 sm:items-center sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-label="학회 논문 미리보기"
           onClick={closePaperPreview}
         >
           <div
-            className="max-h-[90vh] w-full max-w-4xl overflow-auto rounded-2xl bg-white p-4 shadow-xl sm:p-6"
+            ref={paperScrollRef}
+            onScroll={handlePaperScroll}
+            className="scrollbar-hide relative max-h-[80vh] w-full max-w-4xl overflow-auto rounded-2xl bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-center justify-between gap-4">
+            <div className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-slate-100 bg-white/95 px-4 pt-4 pb-3 backdrop-blur sm:px-6 sm:pt-6">
               <div className="text-lg font-bold text-slate-900">
                 학회 논문 미리보기
               </div>
@@ -336,7 +391,7 @@ export function About() {
               </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 px-4 pt-4 pb-24 sm:px-6 sm:pt-6 sm:pb-28">
               {paperStatus === 'loading' ? (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -367,6 +422,7 @@ export function About() {
                       setPaperStatus('loading');
                       setPaperLoadedCount(0);
                       setPaperReloadKey((k) => k + 1);
+                      setPaperMoreDismissed(false);
                     }}
                   >
                     다시 시도
@@ -409,6 +465,21 @@ export function About() {
                 onError={() => setPaperStatus('error')}
               />
             </div>
+
+            {paperStatus === 'loaded' &&
+            paperHasMoreBelow &&
+            !paperMoreDismissed ? (
+              <div className="pointer-events-none absolute inset-x-0 bottom-4 z-30 flex justify-center px-4 sm:px-6">
+                <button
+                  type="button"
+                  onClick={handlePaperMoreClick}
+                  aria-label="아래로 더 보기"
+                  className="pointer-events-auto inline-flex h-12 w-12 animate-bounce items-center justify-center rounded-full bg-slate-900 text-white shadow-lg shadow-slate-900/15 transition-colors hover:bg-slate-800 motion-reduce:animate-none"
+                >
+                  <ChevronDown className="h-6 w-6" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}
