@@ -4,6 +4,7 @@ import { db } from '../util/firebase';
 const samplePosts: PostData[] = [
   {
     id: '1',
+    linkId: '1',
     title: 'Firebase Google Login: 팝업 방식으로 안정화',
     description:
       'Redirect 방식에서 no-result가 발생하는 케이스를 추적하고, 팝업 로그인으로 전환해 안정적으로 인증을 완료했습니다.',
@@ -14,6 +15,7 @@ const samplePosts: PostData[] = [
   },
   {
     id: '2',
+    linkId: '2',
     title: 'Tailwind Theme 토큰으로 Brown 팔레트 추가',
     description:
       '프로젝트의 @theme 토큰에 brown 계열 팔레트를 정의하고, 네비게이션과 UI 컴포넌트에 자연스럽게 적용했습니다.',
@@ -22,6 +24,7 @@ const samplePosts: PostData[] = [
   },
   {
     id: '3',
+    linkId: '3',
     title: '포트폴리오 메인 섹션 모션/타이포 다듬기',
     description:
       '모션과 타이포 스케일을 정리해 랜딩 경험을 개선하고, 레이아웃 리듬을 맞췄습니다.',

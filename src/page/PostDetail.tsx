@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Tag } from 'lucide-react';
-import { collection, getDocs, Timestamp } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  limit,
+  query,
+  Timestamp,
+  where,
+} from 'firebase/firestore';
 import { db } from '../util/firebase';
 import { generateThumbnail } from '../util/thumbnail';
 import ReactMarkdown from 'react-markdown';
@@ -20,7 +27,7 @@ function formatDate(date: string | Timestamp): string {
 }
 
 export function PostDetail() {
-  const { id } = useParams<{ id: string }>();
+  const { linkId } = useParams<{ linkId: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<PostData | null>(null);
   const [markdown, setMarkdown] = useState<string>('');
@@ -34,20 +41,49 @@ export function PostDetail() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const postsCol = collection(db, 'posts');
-        const snapshot = await getDocs(postsCol);
-        const posts = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as PostData[];
+        if (!linkId) return;
 
-        const foundPost = posts.find((p) => p.id === id);
-        if (foundPost) {
-          setPost(foundPost);
+        // Prefer linkId-based lookup
+        const q = query(
+          collection(db, 'posts'),
+          where('linkId', '==', linkId),
+          limit(1),
+        );
+        const snapshot = await getDocs(q);
+        const foundFromLinkId = snapshot.docs[0]
+          ? ({
+              ...snapshot.docs[0].data(),
+              id: snapshot.docs[0].id,
+            } as PostData)
+          : null;
+
+        // Backward-compatible fallback: if someone visits /post/{docId}
+        if (!foundFromLinkId) {
+          const postsCol = collection(db, 'posts');
+          const allSnap = await getDocs(postsCol);
+          const posts = allSnap.docs.map(
+            (doc) => ({ ...doc.data(), id: doc.id }) as PostData,
+          );
+          const legacy = posts.find((p) => p.id === linkId);
+          if (legacy) {
+            setPost(legacy);
+            if (legacy.contentMd) {
+              const response = await fetch(legacy.contentMd);
+              if (response.ok) {
+                const text = await response.text();
+                setMarkdown(text);
+              }
+            }
+            return;
+          }
+        }
+
+        if (foundFromLinkId) {
+          setPost(foundFromLinkId);
 
           // Load markdown file if exists
-          if (foundPost.contentMd) {
-            const response = await fetch(foundPost.contentMd);
+          if (foundFromLinkId.contentMd) {
+            const response = await fetch(foundFromLinkId.contentMd);
             if (response.ok) {
               const text = await response.text();
               setMarkdown(text);
@@ -62,7 +98,7 @@ export function PostDetail() {
     };
 
     fetchPost();
-  }, [id]);
+  }, [linkId]);
 
   useEffect(() => {
     // Hysteresis prevents flicker near the boundary when the header height

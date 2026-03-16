@@ -1,5 +1,6 @@
 type PostData = {
   id: string;
+  linkId: string;
   title: string;
   description: string;
   tags?: string[];

@@ -22,7 +22,7 @@ export function Post({ post, className }: PostProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/post/${post.id}`);
+    navigate(`/post/${post.linkId || post.id}`);
   };
 
   const classNames = twMerge(

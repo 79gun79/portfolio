@@ -68,7 +68,7 @@ export default function App() {
       </AnimatePresence>
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="/post/:id" element={<PostDetail />} />
+        <Route path="/post/:linkId" element={<PostDetail />} />
       </Routes>
     </BrowserRouter>
   );
