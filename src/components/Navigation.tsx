@@ -418,9 +418,13 @@ export function Navigation() {
 
                 {/* Footer Info */}
                 <div className="border-t border-slate-100 p-4 text-center sm:p-6">
-                  <p className="text-sm text-slate-500">Gun. Official.</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    내용을 입력하세요
+                  <img
+                    src="/icon/logo_none.png"
+                    alt="Logo"
+                    className="mx-auto h-12 w-auto object-contain opacity-90"
+                  />
+                  <p className="mt-4 text-xs text-slate-400">
+                    © 2026 Jaegeon Lee. All rights reserved.
                   </p>
                 </div>
               </div>
