@@ -38,6 +38,7 @@ export const projectData: ProjectData[] = [
     title: 'FC Neunggok',
     thumbnail: '/projects/fcNeunggok.png',
     summary: '능곡 구성원들의 단합을 도모하는 공식 커뮤니티',
+    logo: '/projects/fcNeunggok_logo.png',
     period: '2026, 01. ~ Now',
     stack: [
       'React',
