@@ -109,7 +109,6 @@ export function Navigation() {
     { label: 'About Me', href: '#about' },
     { label: 'Skills', href: '#skills' },
     { label: 'Projects', href: '#projects' },
-    { label: 'Posts', href: '#posts' },
   ];
 
   const handleNavClick = (

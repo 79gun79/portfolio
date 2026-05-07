@@ -16,6 +16,7 @@
 
 1. [프로젝트 소개](#1)
 2. [기술 스택](#2)
+3. [시작하기](#3)
 
 <br />
 
@@ -43,15 +44,37 @@
 
 ![react](https://img.shields.io/badge/react-61DAFB.svg?style=for-the-badge&logo=react&logoColor=white) ![TypeScript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![tailwindcss](https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-![firebase](https://img.shields.io/badge/firebase-FFCA28.svg?style=for-the-badge&logo=firebase&logoColor=black) ![tanstack](https://img.shields.io/badge/tanstack-FF4154.svg?style=for-the-badge&logo=tanstack&logoColor=white)
-
-### Design
-
-![Lovable](https://img.shields.io/badge/lovable-fe4c74.svg?style=for-the-badge&logo=lovable&logoColor=white) ![Radix UI](https://img.shields.io/badge/radixui-161618.svg?style=for-the-badge&logo=radixui&logoColor=white)
+![firebase](https://img.shields.io/badge/firebase-FFCA28.svg?style=for-the-badge&logo=firebase&logoColor=black) ![vite](https://img.shields.io/badge/vite-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white) ![framermotion](https://img.shields.io/badge/motion-0055FF.svg?style=for-the-badge&logo=framer&logoColor=white)
 
 ### Hosting
 
 ![firebase hosting](https://img.shields.io/badge/firebase_hosting-FFCA28.svg?style=for-the-badge&logo=firebase&logoColor=black)
+
+<br>
+<!-- Top Button -->
+<p style='background: black; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-left: auto;'><a href="#top" style='color: white; '>▲</a></p>
+
+<br>
+
+## <span id="3">🚀 시작하기</span>
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/79gun79/portfolio.git
+cd portfolio
+
+# 2. 의존성 설치
+pnpm install
+
+# 3. 환경 변수 설정
+cp .env.example .env
+# .env 파일에 Firebase 자격 증명 입력
+
+# 4. 개발 서버 실행
+pnpm dev
+```
+
+> Firebase 설정 및 배포 절차는 [docs/CONTRIB.md](docs/CONTRIB.md)와 [docs/RUNBOOK.md](docs/RUNBOOK.md)를 참고하세요.
 
 <br>
 <!-- Top Button -->

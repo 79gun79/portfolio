@@ -1,6 +1,7 @@
 import { useId, useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
+  Cloud,
   Code,
   Palette,
   Database,
@@ -292,6 +293,15 @@ export default function Skills() {
             description:
               'Firebase Auth로 로그인/세션 흐름을 빠르게 구성하고, Firestore를 활용해 읽기·쓰기 패턴과 쿼리를 고려한 데이터 모델링을 진행합니다. Hosting/Storage를 통해 배포와 파일 업로드를 간단히 연결하며, Security Rules로 접근 제어를 설정해 클라이언트 중심 구조에서도 보안을 놓치지 않도록 설계합니다.',
             logos: [siFirebase],
+            tone: 'amber',
+          },
+          {
+            id: 'aws',
+            title: 'AWS (EC2 · S3)',
+            keyword: 'EC2 · S3 · 클라우드 인프라',
+            description:
+              'EC2로 서버 인스턴스를 생성·운용하고, 보안 그룹과 키 페어를 통해 접근 제어를 설정합니다. S3를 활용해 정적 파일 및 미디어 에셋을 업로드·관리하며, 버킷 정책으로 접근 권한을 제어합니다. 클라우드 인프라 위에서 서비스를 배포하고 운영하는 기본 흐름을 이해합니다.',
+            icon: Cloud,
             tone: 'amber',
           },
         ],

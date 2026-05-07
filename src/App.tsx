@@ -4,7 +4,6 @@ import { AnimatePresence } from 'motion/react';
 import { About } from './components/About';
 import { Home } from './components/Home';
 import { Projects } from './components/Projects';
-import { Posts } from './components/Posts';
 import { Start } from './components/Start';
 import Skills from './components/Skills';
 import { Navigation } from './components/Navigation';
@@ -36,7 +35,6 @@ function MainPage() {
       <About />
       <Skills />
       <Projects />
-      <Posts />
       <Footer />
     </div>
   );
